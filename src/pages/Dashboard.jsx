@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Camera, 
   Mic, 
@@ -13,6 +13,7 @@ import {
   MessageCircle 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 // Button Component
 const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
@@ -121,12 +122,39 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
 });
 
 const Dashboard = () => {
-  const [currentWeather] = useState({
-    temp: 28,
-    condition: 'Partly Cloudy',
-    humidity: 65,
-    rainfall: '12mm'
-  });
+  const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+  const [location, setLocation] = useState(null);
+  const [currentWeather, setCurrentWeather] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        setLocation({ lat, lon });
+
+        try {
+          const res = await axios.get(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
+          );
+
+          const weather = res.data;
+          setCurrentWeather({
+            temp: weather.main.temp,
+            condition: weather.weather[0].description,
+            humidity: weather.main.humidity,
+            rainfall: weather.rain ? `${weather.rain['1h']}mm` : '0mm'
+          });
+        } catch (err) {
+          console.error('Error fetching weather:', err);
+        }
+      });
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const [marketPrices] = useState([
     { crop: 'Wheat', price: '₹2,150/quintal', change: '+5.2%', trend: 'up' },
@@ -145,7 +173,6 @@ const Dashboard = () => {
     return trend === 'up' ? 'text-green-600' : 'text-red-600';
   };
 
-  const navigate = useNavigate();
   const handleNavigation = (path) => {
     navigate(path);
     console.log(`Navigating to: ${path}`);
@@ -221,23 +248,28 @@ const Dashboard = () => {
                   </div>
                   <MapPin className="h-5 w-5" />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-3xl font-bold">{currentWeather.temp}°C</p>
-                    <p className="text-sm opacity-90">{currentWeather.condition}</p>
+
+                {currentWeather ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-3xl font-bold">{currentWeather.temp}°C</p>
+                      <p className="text-sm opacity-90 capitalize">{currentWeather.condition}</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">{currentWeather.humidity}%</p>
+                      <p className="text-sm opacity-90">Humidity</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">{currentWeather.rainfall}</p>
+                      <p className="text-sm opacity-90">Expected Rainfall</p>
+                    </div>
+                    <div>
+                      <Badge className="bg-white/20 text-white border-0">Perfect for Sowing</Badge>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.humidity}%</p>
-                    <p className="text-sm opacity-90">Humidity</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.rainfall}</p>
-                    <p className="text-sm opacity-90">Expected Rainfall</p>
-                  </div>
-                  <div>
-                    <Badge className="bg-white/20 text-white border-0">Perfect for Sowing</Badge>
-                  </div>
-                </div>
+                ) : (
+                  <p>Loading weather...</p>
+                )}
               </CardContent>
             </Card>
 
