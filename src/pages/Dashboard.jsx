@@ -125,6 +125,7 @@ const Dashboard = () => {
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
   const [location, setLocation] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -204,6 +205,15 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
+
+      <div id="google_translate_element" className="flex justify-center mt-4">
+        <select
+          className="border px-2 py-1 rounded-md text-md text-gray-800"
+        >
+          <option value="en">English</option>
+          <option value="hi">हिंदी</option>
+        </select>
+      </div>
 
       {/* Main Content */}
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
