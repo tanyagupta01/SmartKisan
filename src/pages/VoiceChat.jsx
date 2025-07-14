@@ -82,46 +82,65 @@ const VoiceChat = () => {
     recognitionRef.current.stop();
   };
 
-  // const processVoiceInput = (text) => {
+  // const processVoiceInput = async (text) => {
   //   setIsProcessing(true);
   //   const userMsg = { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() };
   //   setConversation(prev => [...prev, userMsg]);
   //   setCurrentTranscript('');
 
-  //   // Simulate AI processing
-  //   setTimeout(() => {
-  //     const responses = mockResponses[selectedLanguage] || mockResponses.en;
-  //     const reply = responses[Math.floor(Math.random() * responses.length)];
-  //     const botMsg = { type: 'assistant', message: reply, language: selectedLanguage, timestamp: new Date(), audioUrl: `audio-${Date.now()}.mp3` };
+  //   try {
+  //     const res = await fetch('http://localhost:5050/api/ask', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ message: text, language: selectedLanguage })
+  //     });
+
+  //     const data = await res.json();
+
+  //     const botMsg = {
+  //       type: 'assistant',
+  //       message: data.reply,
+  //       language: selectedLanguage,
+  //       timestamp: new Date(),
+  //       audioUrl: null // optional: use TTS here later
+  //     };
+
   //     setConversation(prev => [...prev, botMsg]);
+  //   } catch (err) {
+  //     console.error('Error contacting backend:', err);
+  //   } finally {
   //     setIsProcessing(false);
-  //   }, 2000);
+  //   }
   // };
+
+  // inside VoiceChat component...
 
   const processVoiceInput = async (text) => {
     setIsProcessing(true);
-    const userMsg = { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() };
-    setConversation(prev => [...prev, userMsg]);
-    setCurrentTranscript('');
+    setConversation(prev => [...prev, { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() }]);
 
     try {
       const res = await fetch('http://localhost:5050/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, language: selectedLanguage })
+        body: JSON.stringify({ message: text })
       });
+      const { reply, audioContent } = await res.json();
 
-      const data = await res.json();
-
-      const botMsg = {
+      // 1) show the AI text bubble
+      setConversation(prev => [...prev, {
         type: 'assistant',
-        message: data.reply,
+        message: reply,
         language: selectedLanguage,
         timestamp: new Date(),
-        audioUrl: null // optional: use TTS here later
-      };
+        audioContent,  // store for play button, if you like
+      }]);
 
-      setConversation(prev => [...prev, botMsg]);
+      // 2) immediately play the spoken response
+      if (audioContent) {
+        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+        audio.play();
+      }
     } catch (err) {
       console.error('Error contacting backend:', err);
     } finally {
@@ -129,10 +148,21 @@ const VoiceChat = () => {
     }
   };
 
-  const playResponse = () => {
-    setIsPlaying(true);
-    setTimeout(() => setIsPlaying(false), 2000);
-  };
+  // And in your message rendering, you can optionally add a Play button:
+  // e.g. inside conversation.map:
+  // {msg.type === 'assistant' && msg.audioContent && (
+  //   <Button size="icon" variant="ghost" onClick={() => {
+  //     new Audio(`data:audio/mp3;base64,${msg.audioContent}`).play();
+  //   }}>
+  //     {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+  //   </Button>
+  // )}
+
+
+  // const playResponse = () => {
+  //   setIsPlaying(true);
+  //   setTimeout(() => setIsPlaying(false), 2000);
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
@@ -186,8 +216,15 @@ const VoiceChat = () => {
                         <p className="text-sm">{msg.message}</p>
                         <div className="flex items-center justify-between mt-1">                          
                           <p className="text-xs opacity-70">{langName(msg.language)}</p>
-                          {msg.type === 'assistant' && msg.audioUrl && (
+                          {/* {msg.type === 'assistant' && msg.audioUrl && (
                             <Button size="icon" variant="ghost" onClick={playResponse}>
+                              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                            </Button>
+                          )} */}
+                           {msg.type === 'assistant' && msg.audioContent && (
+                            <Button size="icon" variant="ghost" onClick={() => {
+                              new Audio(`data:audio/mp3;base64,${msg.audioContent}`).play();
+                            }}>
                               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                             </Button>
                           )}
