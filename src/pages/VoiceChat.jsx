@@ -82,20 +82,51 @@ const VoiceChat = () => {
     recognitionRef.current.stop();
   };
 
-  const processVoiceInput = (text) => {
+  // const processVoiceInput = (text) => {
+  //   setIsProcessing(true);
+  //   const userMsg = { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() };
+  //   setConversation(prev => [...prev, userMsg]);
+  //   setCurrentTranscript('');
+
+  //   // Simulate AI processing
+  //   setTimeout(() => {
+  //     const responses = mockResponses[selectedLanguage] || mockResponses.en;
+  //     const reply = responses[Math.floor(Math.random() * responses.length)];
+  //     const botMsg = { type: 'assistant', message: reply, language: selectedLanguage, timestamp: new Date(), audioUrl: `audio-${Date.now()}.mp3` };
+  //     setConversation(prev => [...prev, botMsg]);
+  //     setIsProcessing(false);
+  //   }, 2000);
+  // };
+
+  const processVoiceInput = async (text) => {
     setIsProcessing(true);
     const userMsg = { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() };
     setConversation(prev => [...prev, userMsg]);
     setCurrentTranscript('');
 
-    // Simulate AI processing
-    setTimeout(() => {
-      const responses = mockResponses[selectedLanguage] || mockResponses.en;
-      const reply = responses[Math.floor(Math.random() * responses.length)];
-      const botMsg = { type: 'assistant', message: reply, language: selectedLanguage, timestamp: new Date(), audioUrl: `audio-${Date.now()}.mp3` };
+    try {
+      const res = await fetch('http://localhost:5050/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, language: selectedLanguage })
+      });
+
+      const data = await res.json();
+
+      const botMsg = {
+        type: 'assistant',
+        message: data.reply,
+        language: selectedLanguage,
+        timestamp: new Date(),
+        audioUrl: null // optional: use TTS here later
+      };
+
       setConversation(prev => [...prev, botMsg]);
+    } catch (err) {
+      console.error('Error contacting backend:', err);
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
   const playResponse = () => {
