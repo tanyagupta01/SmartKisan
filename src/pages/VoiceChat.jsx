@@ -135,7 +135,7 @@ const VoiceChat = () => {
         timestamp: new Date(),
         audioContent,  // store for play button, if you like
       }]);
-
+      console.log(audioContent);
       // 2) immediately play the spoken response
       if (audioContent) {
         const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
