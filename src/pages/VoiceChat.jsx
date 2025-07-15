@@ -82,39 +82,6 @@ const VoiceChat = () => {
     recognitionRef.current.stop();
   };
 
-  // const processVoiceInput = async (text) => {
-  //   setIsProcessing(true);
-  //   const userMsg = { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() };
-  //   setConversation(prev => [...prev, userMsg]);
-  //   setCurrentTranscript('');
-
-  //   try {
-  //     const res = await fetch('http://localhost:5050/api/ask', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ message: text, language: selectedLanguage })
-  //     });
-
-  //     const data = await res.json();
-
-  //     const botMsg = {
-  //       type: 'assistant',
-  //       message: data.reply,
-  //       language: selectedLanguage,
-  //       timestamp: new Date(),
-  //       audioUrl: null // optional: use TTS here later
-  //     };
-
-  //     setConversation(prev => [...prev, botMsg]);
-  //   } catch (err) {
-  //     console.error('Error contacting backend:', err);
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
-
-  // inside VoiceChat component...
-
   const processVoiceInput = async (text) => {
     setIsProcessing(true);
     setConversation(prev => [...prev, { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() }]);
@@ -123,7 +90,7 @@ const VoiceChat = () => {
       const res = await fetch('http://localhost:5050/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ message: text, maxLength: 50 })
       });
       const { reply, audioContent } = await res.json();
 
