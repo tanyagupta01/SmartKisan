@@ -182,9 +182,6 @@ const CropAnalysis = () => {
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
               </Button>
               <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
               </Button>
             </div>
@@ -243,15 +240,6 @@ const CropAnalysis = () => {
                     Upload from Gallery
                   </Button>
                 </div>
-
-                {/* <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                /> */}
 
                 <input
                   ref={cameraInputRef}
