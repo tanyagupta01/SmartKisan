@@ -102,6 +102,8 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
 
 const CropAnalysis = () => {
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -119,7 +121,11 @@ const CropAnalysis = () => {
   };
 
   const handleCameraCapture = () => {
-    fileInputRef.current?.click();
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryUpload = () => {
+    galleryInputRef.current?.click();
   };
 
   const analyzeImage = async () => {
@@ -231,18 +237,35 @@ const CropAnalysis = () => {
                   </Button>
                   <Button 
                     variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={handleGalleryUpload}
                   >
                     <Upload className="mr-2 h-5 w-5" />
                     Upload from Gallery
                   </Button>
                 </div>
 
-                <input
+                {/* <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   capture="environment"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                /> */}
+
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
                 />
