@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 import { GoogleGenAI, createUserContent } from '@google/genai';
 import wav from 'wav';        
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: './.env' });
 
 const app  = express();
-const PORT = process.env.PORT || 5050;
+const PORT = process.env.PORT;
 
 app.use(cors({
   origin: 'http://localhost:5173',
