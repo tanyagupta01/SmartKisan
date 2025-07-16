@@ -129,7 +129,7 @@ const CropAnalysis = () => {
     
     try {
       // send base64 (with prefix) to backend
-      const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
+      const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
         imageBase64: selectedImage
       });
 

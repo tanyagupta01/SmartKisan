@@ -87,7 +87,7 @@ const VoiceChat = () => {
     setConversation(prev => [...prev, { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() }]);
 
     try {
-      const res = await fetch('http://localhost:5050/api/ask', {
+      const res = await fetch('https://smartkisan.onrender.com/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, maxLength: 50 })
