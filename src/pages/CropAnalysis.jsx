@@ -106,71 +106,6 @@ const CropAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
 
-  // Mock analysis results for demo
-  // const mockAnalyses = [
-  //   {
-  //     confidence: 92,
-  //     disease: "Late Blight (Phytophthora infestans)",
-  //     crop: "Tomato",
-  //     severity: "High",
-  //     description: "Late blight is a serious disease affecting tomato plants, particularly in humid conditions.",
-  //     treatment: [
-  //       "Apply copper-based fungicide immediately",
-  //       "Remove affected leaves and destroy them",
-  //       "Improve air circulation around plants",
-  //       "Avoid overhead watering"
-  //     ],
-  //     prevention: [
-  //       "Use resistant varieties when possible",
-  //       "Ensure proper spacing between plants",
-  //       "Apply preventive fungicide sprays",
-  //       "Monitor weather conditions regularly"
-  //     ],
-  //     expectedOutcome: "With immediate treatment, you can save 70-80% of your crop",
-  //     urgency: "Immediate action required - treat within 24 hours"
-  //   },
-  //   {
-  //     confidence: 87,
-  //     disease: "Healthy Plant",
-  //     crop: "Wheat",
-  //     severity: "Good",
-  //     description: "Your wheat crop appears healthy with good growth characteristics.",
-  //     treatment: [
-  //       "Continue current care routine",
-  //       "Monitor for any changes",
-  //       "Maintain regular watering schedule"
-  //     ],
-  //     prevention: [
-  //       "Regular monitoring for early pest detection",
-  //       "Proper fertilization schedule",
-  //       "Adequate spacing and ventilation"
-  //     ],
-  //     expectedOutcome: "Excellent crop yield expected with current health status",
-  //     urgency: "No immediate action needed"
-  //   },
-  //   {
-  //     confidence: 89,
-  //     disease: "Leaf Spot Disease",
-  //     crop: "Rice",
-  //     severity: "Medium",
-  //     description: "Common leaf spot disease that can affect rice yield if not treated properly.",
-  //     treatment: [
-  //       "Apply appropriate fungicide spray",
-  //       "Remove severely affected leaves",
-  //       "Ensure proper drainage in fields",
-  //       "Reduce plant density if overcrowded"
-  //     ],
-  //     prevention: [
-  //       "Use disease-resistant varieties",
-  //       "Maintain proper field hygiene",
-  //       "Apply balanced fertilization",
-  //       "Monitor humidity levels"
-  //     ],
-  //     expectedOutcome: "Early treatment can prevent 80% yield loss",
-  //     urgency: "Treatment recommended within 48 hours"
-  //   }
-  // ];
-
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -192,12 +127,6 @@ const CropAnalysis = () => {
 
     setIsAnalyzing(true);
     
-    // Simulate AI analysis delay
-    // setTimeout(() => {
-    //   const randomAnalysis = mockAnalyses[Math.floor(Math.random() * mockAnalyses.length)];
-    //   setAnalysisResult(randomAnalysis);
-    //   setIsAnalyzing(false);
-    // }, 3000);
     try {
       // send base64 (with prefix) to backend
       const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
@@ -207,8 +136,6 @@ const CropAnalysis = () => {
       // data.result should match { disease, confidence, severity, description, treatment: [...] }
       setAnalysisResult(data.result);
     } catch (err) {
-      // console.error('Analysis error:', err);
-      // alert(`Analysis failed: ${err.response?.data?.error || err.message}`);
         const status  = err.response?.status || 500;
         const payload = err.response?.data || { error: err.message };
 
@@ -218,24 +145,6 @@ const CropAnalysis = () => {
               setIsAnalyzing(false);
             }
           };
-
-  const getSeverityIcon = (severity) => {
-    switch (severity) {
-      case 'High': return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      case 'Medium': return <Info className="h-5 w-5 text-yellow-500" />;
-      case 'Good': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default: return <Info className="h-5 w-5" />;
-    }
-  };
-
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'High': return 'bg-red-100 text-red-800 border-red-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Good': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   const navigate = useNavigate();
   const handleNavigation = (path) => {

@@ -27,6 +27,7 @@ const Dashboard = () => {
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
   const [location, setLocation] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
+  const [marketPrices, setMarketPrices] = useState([]);
 
   const navigate = useNavigate();
 
@@ -59,12 +60,41 @@ const Dashboard = () => {
     }
   }, []);
 
-  const [marketPrices] = useState([
-    { crop: 'Wheat', price: '₹2,150/quintal', change: '+5.2%', trend: 'up' },
-    { crop: 'Rice', price: '₹3,200/quintal', change: '+2.1%', trend: 'up' },
-    { crop: 'Cotton', price: '₹5,800/quintal', change: '-1.5%', trend: 'down' },
-    { crop: 'Sugarcane', price: '₹340/quintal', change: '+3.8%', trend: 'up' }
-  ]);
+  // const [marketPrices] = useState([
+  //   { crop: 'Wheat', price: '₹2,150/quintal', change: '+5.2%', trend: 'up' },
+  //   { crop: 'Rice', price: '₹3,200/quintal', change: '+2.1%', trend: 'up' },
+  //   { crop: 'Cotton', price: '₹5,800/quintal', change: '-1.5%', trend: 'down' },
+  //   { crop: 'Sugarcane', price: '₹340/quintal', change: '+3.8%', trend: 'up' }
+  // ]);
+
+  useEffect(() => {
+    const fetchMarketPrices = async () => {
+      try {
+        const response = await axios.get('https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070', {
+          params: {
+            'api-key': import.meta.env.VITE_AGMARK_API_KEY, // store your API key in .env file
+            'format': 'json',
+            'filters[state]': 'Punjab', // Change based on location
+            'filters[commodity]': 'Wheat', // Optional: you can loop through multiple crops
+            'limit': 5
+          }
+        });
+
+        const formattedPrices = response.data.records.map(item => ({
+          crop: item.commodity,
+          price: `₹${item.min_price}/quintal`, // or avg_price
+          change: '+0.0%', // Static unless you calculate diff over days
+          trend: 'up' // Logic can be added to analyze price trends
+        }));
+
+        setMarketPrices(formattedPrices);
+      } catch (error) {
+        console.error('Error fetching Agmarknet data:', error);
+      }
+    };
+
+    fetchMarketPrices();
+  }, []);
 
   const [schemes] = useState([
     { name: 'PM-KISAN', amount: '₹6,000', status: 'Available', type: 'Direct Benefit' },
@@ -82,16 +112,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50">
+    <div className="min-h-screen bg-gray-50">
       <Navbar/>
 
       <div id="google_translate_element" className="flex justify-center mt-4">
-        <select
-          className="border px-2 py-1 rounded-md text-md text-gray-800"
-        >
-          <option value="en">English</option>
-          <option value="hi">हिंदी</option>
-        </select>
+        
       </div>
 
       {/* Main Content */}
