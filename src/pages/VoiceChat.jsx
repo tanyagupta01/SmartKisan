@@ -105,8 +105,15 @@ const VoiceChat = () => {
       console.log(audioContent);
       // 2) immediately play the spoken response
       if (audioContent) {
-        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
-        audio.play();
+        const audioBase64 = response.audioContent; // from API
+        const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+        const audioBlob = new Blob([audioBytes], { type: 'audio/mp3' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const audio = new Audio(audioUrl);
+        audio.play().catch(error => {
+          console.error('Audio play failed:', error);
+        });
       }
     } catch (err) {
       console.error('Error contacting backend:', err);
@@ -183,11 +190,6 @@ const VoiceChat = () => {
                         <p className="text-sm">{msg.message}</p>
                         <div className="flex items-center justify-between mt-1">                          
                           <p className="text-xs opacity-70">{langName(msg.language)}</p>
-                          {/* {msg.type === 'assistant' && msg.audioUrl && (
-                            <Button size="icon" variant="ghost" onClick={playResponse}>
-                              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                            </Button>
-                          )} */}
                            {msg.type === 'assistant' && msg.audioContent && (
                             <Button size="icon" variant="ghost" onClick={() => {
                               new Audio(`data:audio/mp3;base64,${msg.audioContent}`).play();
