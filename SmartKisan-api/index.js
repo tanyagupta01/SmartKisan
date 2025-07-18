@@ -11,6 +11,7 @@ const PORT = process.env.PORT;
 
 app.use(cors({
   origin: 'https://smart-kisan-project.vercel.app',
+  // origin: 'http://localhost:5173',
   credentials: true,
 }));
 // bump limit so large base64 images don’t 413
