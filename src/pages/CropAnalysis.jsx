@@ -103,7 +103,7 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
 
 // Pre-configured axios instance
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5050',
+  baseURL: 'https://smartkisan.onrender.com/api/ask',
   timeout: 30000, // 30 second timeout
   headers: {
     'Content-Type': 'application/json',

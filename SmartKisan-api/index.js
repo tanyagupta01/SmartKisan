@@ -7,10 +7,10 @@ import wav from 'wav';
 dotenv.config({ path: './.env' });
 
 const app  = express();
-const PORT = process.env.PORT || 5050;
+const PORT = process.env.PORT;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://smart-kisan-project.vercel.app',
   credentials: true,
 }));
 // bump limit so large base64 images don’t 413
