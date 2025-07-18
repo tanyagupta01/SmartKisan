@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { resizeAndCompress } from '../utils/compress-image';
 
 // Button Component (matching dashboard)
 const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
@@ -112,8 +113,11 @@ const CropAnalysis = () => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target?.result);
+      reader.onload = async (e) => {
+        // setSelectedImage(e.target?.result);
+        const rawDataUrl = e.target.result;
+        const compressed = await resizeAndCompress(rawDataUrl, 800, 600, 0.7);
+        setSelectedImage(compressed);
         setAnalysisResult(null);
       };
       reader.readAsDataURL(file);
@@ -135,7 +139,7 @@ const CropAnalysis = () => {
     
     try {
       // send base64 (with prefix) to backend
-      const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
+      const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
         imageBase64: selectedImage
       });
 

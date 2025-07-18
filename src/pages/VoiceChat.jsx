@@ -87,10 +87,10 @@ const VoiceChat = () => {
     setConversation(prev => [...prev, { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() }]);
 
     try {
-      const res = await fetch('https://smartkisan.onrender.com/api/ask', {
+      const res = await fetch('http://localhost:5050/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, maxLength: 50 })
+        body: JSON.stringify({ message: text, maxLength: 50, language: selectedLanguage })
       });
       const { reply, audioContent } = await res.json();
 
@@ -105,7 +105,7 @@ const VoiceChat = () => {
       console.log(audioContent);
       // 2) immediately play the spoken response
       if (audioContent) {
-        const audioBase64 = response.audioContent; // from API
+        const audioBase64 = audioContent; // from API
         const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
         const audioBlob = new Blob([audioBytes], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
