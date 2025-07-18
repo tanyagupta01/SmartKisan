@@ -20,6 +20,7 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 const VoiceChat = () => {
   const navigate = useNavigate();
   const recognitionRef = useRef(null);
+  const synthRef = useRef(null);
 
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -27,25 +28,39 @@ const VoiceChat = () => {
   const [conversation, setConversation] = useState([]);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [voices, setVoices] = useState([]);
 
   const languages = [
-    { code: 'hi', name: 'हिंदी (Hindi)'},
-    { code: 'ta', name: 'தமிழ் (Tamil)'},
-    { code: 'bn', name: 'বাংলা (Bengali)'},
-    { code: 'te', name: 'తెలుగు (Telugu)'},
-    { code: 'gu', name: 'ગુજરાતી (Gujarati)'},
-    { code: 'mr', name: 'मराठी (Marathi)' },
-    { code: 'en', name: 'English' }
+    { code: 'hi', name: 'हिंदी (Hindi)', speechLang: 'hi-IN' },
+    { code: 'ta', name: 'தமிழ் (Tamil)', speechLang: 'ta-IN' },
+    { code: 'bn', name: 'বাংলা (Bengali)', speechLang: 'bn-IN' },
+    { code: 'te', name: 'తెలుగు (Telugu)', speechLang: 'te-IN' },
+    { code: 'gu', name: 'ગુજરાતી (Gujarati)', speechLang: 'gu-IN' },
+    { code: 'mr', name: 'मराठी (Marathi)', speechLang: 'mr-IN' },
+    { code: 'en', name: 'English', speechLang: 'en-IN' }
   ];
 
-  // Mock AI responses
-  const mockResponses = {
-    hi: [ /* ... */ ],
-    ta: [ /* ... */ ],
-    en: [ /* ... */ ]
-  };
-
   const langName = code => languages.find(l => l.code === code)?.name || 'Unknown';
+
+  // Initialize Speech Synthesis
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      synthRef.current = window.speechSynthesis;
+      
+      // Load voices
+      const loadVoices = () => {
+        const availableVoices = synthRef.current.getVoices();
+        setVoices(availableVoices);
+      };
+      
+      loadVoices();
+      synthRef.current.addEventListener('voiceschanged', loadVoices);
+      
+      return () => {
+        synthRef.current.removeEventListener('voiceschanged', loadVoices);
+      };
+    }
+  }, []);
 
   // Initialize SpeechRecognition
   useEffect(() => {
@@ -56,19 +71,53 @@ const VoiceChat = () => {
     recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
-     const transcript = event.results[0][0].transcript;
-     setCurrentTranscript(transcript);
-     // immediately send it off:
-     setIsRecording(false);
-     processVoiceInput(transcript);
-   };
-   recognition.onend = () => {
-     // just clear recording state if the user manually stopped or recognition timed out
-     setIsRecording(false);
-   };
+      const transcript = event.results[0][0].transcript;
+      setCurrentTranscript(transcript);
+      setIsRecording(false);
+      processVoiceInput(transcript);
+    };
+    
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
 
     recognitionRef.current = recognition;
-  }, [selectedLanguage, currentTranscript]);
+  }, [selectedLanguage]);
+
+  // Text-to-Speech function
+  const speakText = (text, language) => {
+    if (!synthRef.current) return;
+
+    // Cancel any ongoing speech
+    synthRef.current.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Find appropriate voice for the language
+    const langConfig = languages.find(l => l.code === language);
+    const speechLang = langConfig?.speechLang || 'en-US';
+    
+    const voice = voices.find(v => 
+      v.lang === speechLang || 
+      v.lang.startsWith(language) || 
+      v.lang.includes('IN')
+    );
+    
+    if (voice) {
+      utterance.voice = voice;
+    }
+    
+    utterance.lang = speechLang;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
+
+    synthRef.current.speak(utterance);
+  };
 
   const startRecording = () => {
     if (!recognitionRef.current) return;
@@ -84,37 +133,37 @@ const VoiceChat = () => {
 
   const processVoiceInput = async (text) => {
     setIsProcessing(true);
-    setConversation(prev => [...prev, { type: 'user', message: text, language: selectedLanguage, timestamp: new Date() }]);
+    setConversation(prev => [...prev, { 
+      type: 'user', 
+      message: text, 
+      language: selectedLanguage, 
+      timestamp: new Date() 
+    }]);
 
     try {
       const res = await fetch('https://smartkisan.onrender.com/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, maxLength: 50 })
+        body: JSON.stringify({ 
+          message: text, 
+          maxLength: 50, 
+          language: selectedLanguage 
+        })
       });
-      const { reply, audioContent } = await res.json();
+      
+      const { reply } = await res.json();
 
-      // 1) show the AI text bubble
+      // Add AI response to conversation
       setConversation(prev => [...prev, {
         type: 'assistant',
         message: reply,
         language: selectedLanguage,
         timestamp: new Date(),
-        audioContent,  // store for play button, if you like
       }]);
-      console.log(audioContent);
-      // 2) immediately play the spoken response
-      if (audioContent) {
-        const audioBase64 = response.audioContent; // from API
-        const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
-        const audioBlob = new Blob([audioBytes], { type: 'audio/mp3' });
-        const audioUrl = URL.createObjectURL(audioBlob);
 
-        const audio = new Audio(audioUrl);
-        audio.play().catch(error => {
-          console.error('Audio play failed:', error);
-        });
-      }
+      // Speak the response immediately
+      speakText(reply, selectedLanguage);
+
     } catch (err) {
       console.error('Error contacting backend:', err);
     } finally {
@@ -122,21 +171,16 @@ const VoiceChat = () => {
     }
   };
 
-  // And in your message rendering, you can optionally add a Play button:
-  // e.g. inside conversation.map:
-  // {msg.type === 'assistant' && msg.audioContent && (
-  //   <Button size="icon" variant="ghost" onClick={() => {
-  //     new Audio(`data:audio/mp3;base64,${msg.audioContent}`).play();
-  //   }}>
-  //     {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-  //   </Button>
-  // )}
+  const playMessage = (message, language) => {
+    speakText(message, language);
+  };
 
-
-  // const playResponse = () => {
-  //   setIsPlaying(true);
-  //   setTimeout(() => setIsPlaying(false), 2000);
-  // };
+  const stopSpeaking = () => {
+    if (synthRef.current) {
+      synthRef.current.cancel();
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
@@ -166,7 +210,7 @@ const VoiceChat = () => {
           >
             {languages.map(lang => (
               <option key={lang.code} value={lang.code}>
-                {lang.flag} {lang.name}
+                {lang.name}
               </option>
             ))}
           </select>
@@ -190,11 +234,14 @@ const VoiceChat = () => {
                         <p className="text-sm">{msg.message}</p>
                         <div className="flex items-center justify-between mt-1">                          
                           <p className="text-xs opacity-70">{langName(msg.language)}</p>
-                           {msg.type === 'assistant' && msg.audioContent && (
-                            <Button size="icon" variant="ghost" onClick={() => {
-                              new Audio(`data:audio/mp3;base64,${msg.audioContent}`).play();
-                            }}>
-                              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                          {msg.type === 'assistant' && (
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              onClick={() => playMessage(msg.message, msg.language)}
+                              disabled={isPlaying}
+                            >
+                              <Play className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
@@ -221,7 +268,10 @@ const VoiceChat = () => {
           </div>
         </Card>
 
-        <Card title="Voice Input" subtitle="Tap to speak or select a sample question" actions={[{ label: 'Clear', onClick: () => setConversation([]) }]}>          
+        <Card title="Voice Input" subtitle="Tap to speak or select a sample question" actions={[
+          { label: 'Clear', onClick: () => setConversation([]) },
+          ...(isPlaying ? [{ label: 'Stop Speaking', onClick: stopSpeaking }] : [])
+        ]}>          
           <div className="text-center space-y-6">
             {currentTranscript && (
               <div className="bg-gray-50 p-3 rounded-lg">
@@ -241,8 +291,12 @@ const VoiceChat = () => {
               {isRecording && <div className="absolute inset-0 rounded-full border-4 border-red-400 animate-ping" />}
             </div>
 
-            <p className="font-semibold text-lg text-gray-800">{isRecording ? 'Listening...' : 'Tap to Speak'}</p>
-            <p className="text-sm text-gray-600">{isRecording ? `Listening in ${langName(selectedLanguage)}` : `Ask in ${langName(selectedLanguage)}`}</p>
+            <p className="font-semibold text-lg text-gray-800">
+              {isRecording ? 'Listening...' : isPlaying ? 'Speaking...' : 'Tap to Speak'}
+            </p>
+            <p className="text-sm text-gray-600">
+              {isRecording ? `Listening in ${langName(selectedLanguage)}` : `Ask in ${langName(selectedLanguage)}`}
+            </p>
 
             {conversation.length === 0 && (
               <div className="space-y-2">
