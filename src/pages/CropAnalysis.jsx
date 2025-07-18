@@ -104,6 +104,7 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
 // Pre-configured axios instance
 const apiClient = axios.create({
   baseURL: 'https://smartkisan.onrender.com',
+  // baseURL: 'http://localhost:5050',
   timeout: 30000, // 30 second timeout
   headers: {
     'Content-Type': 'application/json',
@@ -158,7 +159,7 @@ const CropAnalysis = () => {
     try {
       const startTime = Date.now();
       
-      const { data } = await apiClient.post('/api/analyze-image', {
+      const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
         imageBase64: selectedImage
       });
 
