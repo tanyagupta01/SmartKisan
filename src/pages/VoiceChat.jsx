@@ -29,6 +29,8 @@ const VoiceChat = () => {
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [voices, setVoices] = useState([]);
+  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   const languages = [
     { code: 'hi', name: 'हिंदी (Hindi)', speechLang: 'hi-IN' },
@@ -41,6 +43,17 @@ const VoiceChat = () => {
   ];
 
   const langName = code => languages.find(l => l.code === code)?.name || 'Unknown';
+
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation, isProcessing]);
 
   // Initialize Speech Synthesis
   useEffect(() => {
@@ -217,7 +230,7 @@ const VoiceChat = () => {
         </Card>
 
         <Card title="Conversation" subtitle={conversation.length ? `${conversation.length} messages` : 'Tap mic to start'}>
-          <div className="h-80 overflow-y-auto space-y-4">
+          <div ref={chatContainerRef} className="h-80 overflow-y-auto space-y-4">
             {conversation.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
@@ -265,6 +278,7 @@ const VoiceChat = () => {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </Card>
 
