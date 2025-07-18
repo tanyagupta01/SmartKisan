@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { 
   Camera, 
   Upload, 
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { resizeAndCompress } from '../utils/compress-image';
+import { resizeAndCompress, fastCompress } from '../utils/compress-image';
 
 // Button Component (matching dashboard)
 const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
@@ -101,6 +101,15 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
   );
 });
 
+// Pre-configured axios instance
+const apiClient = axios.create({
+  baseURL: 'http://localhost:5050',
+  timeout: 30000, // 30 second timeout
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 const CropAnalysis = () => {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -108,59 +117,85 @@ const CropAnalysis = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [processingTime, setProcessingTime] = useState(null);
+  const [progress, setProgress] = useState(0);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = useCallback(async (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        // setSelectedImage(e.target?.result);
         const rawDataUrl = e.target.result;
-        const compressed = await resizeAndCompress(rawDataUrl, 800, 600, 0.7);
+        // Use fast compression for quicker processing
+        const compressed = await fastCompress(rawDataUrl, 384, 0.7);
         setSelectedImage(compressed);
         setAnalysisResult(null);
+        setProcessingTime(null);
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const handleCameraCapture = () => {
+  const handleCameraCapture = useCallback(() => {
     cameraInputRef.current?.click();
-  };
+  }, []);
 
-  const handleGalleryUpload = () => {
+  const handleGalleryUpload = useCallback(() => {
     galleryInputRef.current?.click();
-  };
+  }, []);
 
-  const analyzeImage = async () => {
+  const analyzeImage = useCallback(async () => {
     if (!selectedImage) return;
 
     setIsAnalyzing(true);
+    setProgress(0);
     
+    // Simulate progress for better UX
+    const progressInterval = setInterval(() => {
+      setProgress(prev => Math.min(prev + 10, 90));
+    }, 500);
+
     try {
-      // send base64 (with prefix) to backend
-      const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
+      const startTime = Date.now();
+      
+      const { data } = await apiClient.post('/api/analyze-image', {
         imageBase64: selectedImage
       });
 
-      // data.result should match { disease, confidence, severity, description, treatment: [...] }
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      
+      setProgress(100);
       setAnalysisResult(data.result);
+      setProcessingTime(totalTime);
+      
+      clearInterval(progressInterval);
+      
     } catch (err) {
-        const status  = err.response?.status || 500;
-        const payload = err.response?.data || { error: err.message };
-
-        console.error(`❌ /api/analyze-image → HTTP ${status}`, JSON.stringify(payload, null, 2));
-        return res.status(status).json(payload);
-            } finally {
-              setIsAnalyzing(false);
-            }
-          };
+      clearInterval(progressInterval);
+      const status = err.response?.status || 500;
+      const payload = err.response?.data || { error: err.message };
+      
+      console.error(`❌ /api/analyze-image → HTTP ${status}`, JSON.stringify(payload, null, 2));
+      
+      // Show error to user
+      setAnalysisResult({
+        crop: 'Unknown',
+        disease: 'Analysis Failed',
+        description: 'Failed to analyze the image. Please try again with a clearer photo.',
+        treatment: ['Retake photo with better lighting', 'Ensure crop is clearly visible', 'Try again'],
+        mandi: []
+      });
+    } finally {
+      setIsAnalyzing(false);
+      clearInterval(progressInterval);
+    }
+  }, [selectedImage]);
 
   const navigate = useNavigate();
-  const handleNavigation = (path) => {
+  const handleNavigation = useCallback((path) => {
     navigate(path);
-    console.log(`Navigating to: ${path}`);
-  };
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -198,7 +233,9 @@ const CropAnalysis = () => {
           {/* Image Upload Section */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Upload or Capture Crop Image</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span>Upload or Capture Crop Image</span>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -214,7 +251,11 @@ const CropAnalysis = () => {
                       variant="outline" 
                       size="sm" 
                       className="absolute top-2 right-2"
-                      onClick={() => setSelectedImage(null)}
+                      onClick={() => {
+                        setSelectedImage(null);
+                        setAnalysisResult(null);
+                        setProcessingTime(null);
+                      }}
                     >
                       Remove
                     </Button>
@@ -232,6 +273,7 @@ const CropAnalysis = () => {
                   <Button 
                     onClick={handleCameraCapture}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isAnalyzing}
                   >
                     <Camera className="mr-2 h-5 w-5" />
                     Capture Photo
@@ -239,6 +281,7 @@ const CropAnalysis = () => {
                   <Button 
                     variant="outline"
                     onClick={handleGalleryUpload}
+                    disabled={isAnalyzing}
                   >
                     <Upload className="mr-2 h-5 w-5" />
                     Upload from Gallery
@@ -274,7 +317,7 @@ const CropAnalysis = () => {
                       {isAnalyzing ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Analyzing Image...
+                          Analyzing... {progress}%
                         </>
                       ) : (
                         'Analyze Crop Health'
@@ -296,14 +339,18 @@ const CropAnalysis = () => {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">AI Analysis in Progress</h3>
                   <p className="text-gray-600 mb-4">Processing your crop image using advanced computer vision...</p>
-                  <div className="bg-gray-200 rounded-full h-2 mb-4">
-                    <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
+                  <div className="bg-gray-200 rounded-full h-3 mb-4">
+                    <div 
+                      className="bg-green-600 h-3 rounded-full transition-all duration-300" 
+                      style={{ width: `${progress}%` }}
+                    ></div>
                   </div>
-                  <div className="text-sm text-gray-500 space-y-1">
-                    <p>✓ Image quality validated</p>
-                    <p>✓ Plant species identified</p>
-                    <p className="animate-pulse">⏳ Analyzing for diseases and pests...</p>
-                  </div>
+                  <p className="text-sm text-gray-500">
+                    {progress < 30 && "🔍 Analyzing image quality..."}
+                    {progress >= 30 && progress < 60 && "🌱 Identifying crop species..."}
+                    {progress >= 60 && progress < 90 && "🔬 Detecting diseases and pests..."}
+                    {progress >= 90 && "✅ Finalizing results..."}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -315,12 +362,14 @@ const CropAnalysis = () => {
               {/* Main Result Card */}
               <Card className="border-l-4 border-l-green-500">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    {/* <CardTitle className="flex items-center">
-                      {getSeverityIcon(analysisResult.severity)}
-                      <span className="ml-2">Analysis Results</span>
-                    </CardTitle> */}
-                  </div>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Analysis Results</span>
+                    {processingTime && (
+                      <span className="text-sm text-green-600 font-normal">
+                        Completed in {(processingTime / 1000).toFixed(1)}s
+                      </span>
+                    )}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -338,29 +387,26 @@ const CropAnalysis = () => {
                     <div className="p-4 bg-gray-50 rounded-lg">
                       <p className="text-gray-700">{analysisResult.description}</p>
                     </div>
-
                   </div>
                 </CardContent>
               </Card>
 
               {/* Treatment Recommendations */}
-              <div className="flex justify-center">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-700">Treatment Recommendations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {analysisResult.treatment.map((item, index) => (
-                        <li key={index} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                          <span className="text-gray-700">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg text-blue-700">Treatment Recommendations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {analysisResult.treatment.map((item, index) => (
+                      <li key={index} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -369,6 +415,7 @@ const CropAnalysis = () => {
                   onClick={() => {
                     setSelectedImage(null);
                     setAnalysisResult(null);
+                    setProcessingTime(null);
                   }}
                 >
                   Analyze Another Image
