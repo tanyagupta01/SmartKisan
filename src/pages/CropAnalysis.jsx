@@ -4,16 +4,13 @@ import {
   Upload, 
   ArrowLeft, 
   Loader2, 
-  CheckCircle, 
-  AlertTriangle, 
-  Info,
   User,
-  Settings,
   Bell
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resizeAndCompress, fastCompress } from '../utils/compress-image';
+import Navbar from '../components/Navbar';
 
 // Button Component (matching dashboard)
 const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
@@ -159,7 +156,8 @@ const CropAnalysis = () => {
     try {
       const startTime = Date.now();
       
-      const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
+      // const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
+      const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
         imageBase64: selectedImage
       });
 
@@ -200,7 +198,7 @@ const CropAnalysis = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header - matching dashboard style */}
+      <Navbar />
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">

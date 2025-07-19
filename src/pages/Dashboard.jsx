@@ -16,6 +16,7 @@ import {
   ChartBarIcon,
   SunIcon
 } from 'lucide-react';
+import { CalendarIcon } from "@heroicons/react/24/outline";
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import DashboardCard from '../components/DashboardCard';
@@ -122,7 +123,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <DashboardCard
             title="Analyze Crop"
             subtitle="Take a photo to detect issues"
@@ -147,6 +148,20 @@ const Dashboard = () => {
                 label: 'Start Chat', 
                 icon: Mic, 
                 onClick: () => handleNavigation('/voice-chat') 
+              }
+            ]}
+          />
+
+          <DashboardCard
+            title="Generate Calender"
+            subtitle="Get a tailored farming timetable"
+            icon={CalendarIcon}
+            onClick={() => handleNavigation('/calender')}
+            actions={[
+              { 
+                label: 'Get Timetable', 
+                icon: CalendarIcon, 
+                onClick: () => handleNavigation('/calender') 
               }
             ]}
           />
