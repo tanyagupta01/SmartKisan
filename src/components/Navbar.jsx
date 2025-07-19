@@ -22,16 +22,14 @@ const Navbar = () => {
   ];
 
   const userNavigation = [
-    { name: 'Your Profile', href: '/profile', icon: UserIcon },
-    { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-    { name: 'Help', href: '/help', icon: QuestionMarkCircleIcon },
-    { name: 'Sign out', href: '/logout', icon: ArrowRightOnRectangleIcon },
+    { name: 'Your Profile', href: '/', icon: UserIcon },
+    { name: 'Settings', href: '/', icon: Cog6ToothIcon },
+    { name: 'Help', href: '/', icon: QuestionMarkCircleIcon },
+    { name: 'Sign out', href: '/', icon: ArrowRightOnRectangleIcon },
   ];
 
   const notifications = [
-    { id: 1, message: 'Weather alert: Rain expected tomorrow', time: '2 min ago', type: 'warning' },
-    { id: 2, message: 'Wheat prices increased by 3%', time: '1 hour ago', type: 'success' },
-    { id: 3, message: 'New government scheme available', time: '3 hours ago', type: 'info' },
+    
   ];
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -82,10 +80,7 @@ const Navbar = () => {
                 onClick={toggleNotificationMenu}
                 className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
               >
-                <BellIcon className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-medium">
-                  3
-                </span>
+                <BellIcon className="h-5 w-5 text-gray-100" />
               </button>
 
               {/* Notifications Dropdown */}
@@ -133,8 +128,8 @@ const Navbar = () => {
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-200">
-                    <p className="text-sm font-semibold text-gray-900">Ram Singh</p>
-                    <p className="text-xs text-gray-500">ram.singh@example.com</p>
+                    <p className="text-sm font-semibold text-gray-900">User</p>
+                    <p className="text-xs text-gray-500">user@example.com</p>
                   </div>
                   {userNavigation.map((item) => {
                     const Icon = item.icon;
@@ -185,35 +180,6 @@ const Navbar = () => {
                 </a>
               );
             })}
-          </div>
-          
-          <div className="border-t border-gray-200 pt-4 pb-3">
-            <div className="flex items-center px-5 space-x-3">
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                alt="Profile"
-                className="w-10 h-10 rounded-full border-2 border-gray-200"
-              />
-              <div>
-                <div className="text-base font-medium text-gray-900">Ram Singh</div>
-                <div className="text-sm text-gray-500">ram.singh@example.com</div>
-              </div>
-            </div>
-            <div className="mt-3 px-2 space-y-1">
-              {userNavigation.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.name}</span>
-                  </a>
-                );
-              })}
-            </div>
           </div>
         </div>
       )}

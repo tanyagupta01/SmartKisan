@@ -21,7 +21,6 @@ const Dashboard = () => {
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
   const [location, setLocation] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
-  const [marketPrices, setMarketPrices] = useState([]);
 
   const navigate = useNavigate();
 
