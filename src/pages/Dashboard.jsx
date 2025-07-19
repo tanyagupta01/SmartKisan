@@ -61,42 +61,6 @@ const Dashboard = () => {
     }
   }, []);
 
-  // const [marketPrices] = useState([
-  //   { crop: 'Wheat', price: '₹2,150/quintal', change: '+5.2%', trend: 'up' },
-  //   { crop: 'Rice', price: '₹3,200/quintal', change: '+2.1%', trend: 'up' },
-  //   { crop: 'Cotton', price: '₹5,800/quintal', change: '-1.5%', trend: 'down' },
-  //   { crop: 'Sugarcane', price: '₹340/quintal', change: '+3.8%', trend: 'up' }
-  // ]);
-
-  useEffect(() => {
-    const fetchMarketPrices = async () => {
-      try {
-        const response = await axios.get('https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070', {
-          params: {
-            'api-key': import.meta.env.VITE_AGMARK_API_KEY, // store your API key in .env file
-            'format': 'json',
-            'filters[state]': 'Punjab', // Change based on location
-            'filters[commodity]': 'Wheat', // Optional: you can loop through multiple crops
-            'limit': 5
-          }
-        });
-
-        const formattedPrices = response.data.records.map(item => ({
-          crop: item.commodity,
-          price: `₹${item.min_price}/quintal`, // or avg_price
-          change: '+0.0%', // Static unless you calculate diff over days
-          trend: 'up' // Logic can be added to analyze price trends
-        }));
-
-        setMarketPrices(formattedPrices);
-      } catch (error) {
-        console.error('Error fetching Agmarknet data:', error);
-      }
-    };
-
-    fetchMarketPrices();
-  }, []);
-
   const [schemes] = useState([
     { name: 'PM-KISAN', amount: '₹6,000', status: 'Available', type: 'Direct Benefit' },
     { name: 'Crop Insurance', amount: 'Up to ₹2L', status: 'Apply Now', type: 'Insurance' },
@@ -195,40 +159,19 @@ const Dashboard = () => {
               )}
             </DashboardCard>
 
-            {/* Market Prices */}
             <DashboardCard
-              title="Market Prices"
-              subtitle="Latest crop prices in your region"
-              icon={TrendingUp}
-              actions={[
-                { 
-                  label: 'View All', 
-                  icon: TrendingUp, 
-                  onClick: () => handleNavigation('/market-data') 
-                }
-              ]}
-            >
-              <div className="space-y-4">
-                {marketPrices.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-3 border-b last:border-b-0">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{item.crop}</h4>
-                      <p className="text-lg font-bold text-gray-900">{item.price}</p>
-                    </div>
-                    <div className="text-right flex items-center space-x-2">
-                      <span className={`text-sm font-medium ${getTrendColor(item.trend)}`}>
-                        {item.change}
-                      </span>
-                      {item.trend === 'up' ? (
-                        <ArrowUpIcon className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <ArrowDownIcon className="h-4 w-4 text-red-600" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </DashboardCard>
+            title="Mandi Prices"
+            subtitle="Get latest crop prices in your region"
+            icon={TrendingUp}
+            onClick={() => handleNavigation('/market-data')}
+            actions={[
+              { 
+                label: 'Get mandi prices', 
+                icon: TrendingUp, 
+                onClick: () => handleNavigation('/market-data') 
+              }
+            ]}
+          />
           </div>
 
           {/* Right Column - Sidebar */}
