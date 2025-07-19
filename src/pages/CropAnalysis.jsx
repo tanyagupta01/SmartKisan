@@ -95,7 +95,6 @@ const apiClient = axios.create({
 });
 
 const CropAnalysis = () => {
-  const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -103,8 +102,6 @@ const CropAnalysis = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [processingTime, setProcessingTime] = useState(null);
   const [progress, setProgress] = useState(0);
-
-  const { translateAndCache } = useTranslation();
 
   // Force re-translation when analysis result changes
   useEffect(() => {
@@ -213,29 +210,17 @@ const CropAnalysis = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-white shadow-sm">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="icon" onClick={() => handleNavigation('/dashboard')}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">🌾</span>
-              </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Crop Analysis</h1>
                 <p className="text-sm text-gray-600">AI-Powered Disease Detection</p>
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
-              </Button>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
             </div>
           </div>
         </div>

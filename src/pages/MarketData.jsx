@@ -2,16 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   MapPin,
   Search,
-  ArrowUpIcon,
-  ArrowDownIcon,
   RefreshCw,
   Calendar,
   BarChart3,
   Info,
+  ArrowLeft, 
   AlertCircle
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import DashboardCard from '../components/DashboardCard';
 import Button from '../components/Button';
 
 // Translation utility
@@ -36,13 +35,11 @@ const useTranslation = () => {
   const [currentLang, setCurrentLang] = useState('en');
 
   const detectLanguage = useCallback(() => {
-    // Detect current Google Translate language
     const gtCombo = document.querySelector('.goog-te-combo');
     if (gtCombo) {
       return gtCombo.value || 'en';
     }
     
-    // Fallback: check HTML lang attribute or document language
     return document.documentElement.lang || navigator.language.split('-')[0] || 'en';
   }, []);
 
@@ -93,15 +90,36 @@ const MarketData = () => {
   const [error, setError] = useState(null);
   const [locationError, setLocationError] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
+  const navigate = useNavigate();
+  
+  // Add state for translated option texts
+  const [translatedOptionTexts, setTranslatedOptionTexts] = useState({
+    selectCrop: 'Select a crop…',
+    selectRadius: 'Select radius…'
+  });
 
   const { translateAndCache } = useTranslation();
+
+  // Translate option texts
+  useEffect(() => {
+    const translateOptions = async () => {
+      const selectCrop = await translateAndCache('select_crop_placeholder', 'Select a crop…');
+      const selectRadius = await translateAndCache('select_radius_placeholder', 'Select radius…');
+      
+      setTranslatedOptionTexts({
+        selectCrop,
+        selectRadius
+      });
+    };
+    
+    translateOptions();
+  }, [translateAndCache]);
 
   // Force re-translation when market data changes
   useEffect(() => {
     if (mandis.length > 0) {
       // Trigger translation of dynamic content
       const timer = setTimeout(() => {
-        // Manually trigger Google Translate for dynamic content
         if (window.google && window.google.translate) {
           try {
             window.google.translate.getTranslateLib().then(() => {
@@ -195,36 +213,22 @@ const MarketData = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <TranslatableText 
-            translationKey="market_prices_title"
-            tag="h1" 
-            className="text-3xl font-bold text-gray-900 mb-2"
-          >
-            Market Prices
-          </TranslatableText>
-          <TranslatableText 
-            translationKey="market_prices_subtitle"
-            tag="p" 
-            className="text-gray-600"
-          >
-            Real-time prices from nearest mandis
-          </TranslatableText>
-          {locationError && (
-            <div className="flex items-center mt-2 text-amber-600">
-              <AlertCircle className="h-4 w-4 mr-2" translate="no" />
-              <TranslatableText 
-                translationKey="default_location_notice"
-                tag="span" 
-                className="text-sm"
-              >
-                Using default location
-              </TranslatableText>
+      <header className="bg-white shadow-sm">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Mandi Prices</h1>
+                <p className="text-sm text-gray-600">Real-time prices from nearest mandis</p>
+              </div>
             </div>
-          )}
+          </div>
         </div>
+      </header>
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Error Alert */}
         {error && (
@@ -258,9 +262,7 @@ const MarketData = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="" disabled>
-                    <TranslatableText translationKey="select_crop_placeholder">
-                      Select a crop…
-                    </TranslatableText>
+                    {translatedOptionTexts.selectCrop}
                   </option>
                   {crops.map((crop) => (
                     <option key={crop} value={crop}>
@@ -290,9 +292,7 @@ const MarketData = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="" disabled>
-                    <TranslatableText translationKey="select_radius_placeholder">
-                      Select radius…
-                    </TranslatableText>
+                    {translatedOptionTexts.selectRadius}
                   </option>
                   {[10, 25, 50, 100, 200].map((r) => (
                     <option key={r} value={r}>{r} km</option>
