@@ -127,7 +127,11 @@ const MarketData = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Select Crop</label>
               <select
                 value={selectedCrop}
-                onChange={(e) => setSelectedCrop(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCrop(e.target.value);
+                  setMandis([]);
+                  setHasFetched(false);
+                }}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="" disabled>Select a crop…</option>
@@ -207,26 +211,6 @@ const MarketData = () => {
                     ) : (
                       <div className="mb-4"><div className="text-gray-500 text-sm">No data available for {selectedCrop}</div></div>
                     )}
-
-                    {/* Other Crops */}
-                    <div className="border-t pt-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">Other Crops</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(mandi.crops)
-                          .filter(([crop]) => crop !== selectedCrop)
-                          .slice(0, 4)
-                          .map(([crop, data]) => {
-                            return (
-                              <div key={crop} className="text-xs">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-gray-600 capitalize">{crop}</span>
-                                </div>
-                                <div className="font-medium text-gray-900">{data.price}</div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
                   </div>
                 </div>
               );

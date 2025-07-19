@@ -13,7 +13,7 @@ router.post('/market-data', async (req, res) => {
   }
 
   try {
-    const prompt = `Find agricultural mandis within ${searchRadius}km of ${lat}, ${lon} in India. For each mandi, provide current prices for ${selectedCrop} and other major crops. Return only JSON format:
+    const prompt = `Find agricultural mandis within ${searchRadius}km of ${lat}, ${lon} in India. For each mandi, provide current prices for ${selectedCrop}. Return only JSON format:
 {
   "mandis": [
     {

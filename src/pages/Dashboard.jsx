@@ -86,6 +86,26 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Weather Section */}
+        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Cloud className="h-5 w-5 mr-2 text-blue-500" />
+              <span className="font-medium text-gray-900">
+                {currentWeather ? `${Math.round(currentWeather.temp)}°C, ${currentWeather.condition}` : 'Loading weather...'}
+              </span>
+            </div>
+            {currentWeather && (
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <span>{currentWeather.humidity}% humidity</span>
+                <span>{currentWeather.rainfall} rain</span>
+                <MapPin className="h-4 w-4" />
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <DashboardCard
@@ -134,44 +154,19 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* Weather Card */}
             <DashboardCard
-              title="Today's Weather"
-              subtitle={currentWeather ? `${currentWeather.temp}°C - ${currentWeather.condition}` : 'Loading weather...'}
-              icon={Cloud}
-              // badge="Perfect for Sowing"
-            >
-              {currentWeather && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-white">
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.humidity}%</p>
-                    <p className="text-sm opacity-90">Humidity</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.rainfall}</p>
-                    <p className="text-sm opacity-90">Expected Rainfall</p>
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Current Location</span>
-                  </div>
-                </div>
-              )}
-            </DashboardCard>
-
-            <DashboardCard
-            title="Mandi Prices"
-            subtitle="Get latest crop prices in your region"
-            icon={TrendingUp}
-            onClick={() => handleNavigation('/market-data')}
-            actions={[
-              { 
-                label: 'Get mandi prices', 
-                icon: TrendingUp, 
-                onClick: () => handleNavigation('/market-data') 
-              }
-            ]}
-          />
+              title="Mandi Prices"
+              subtitle="Get latest crop prices in your region"
+              icon={TrendingUp}
+              onClick={() => handleNavigation('/market-data')}
+              actions={[
+                { 
+                  label: 'Get mandi prices', 
+                  icon: TrendingUp, 
+                  onClick: () => handleNavigation('/market-data') 
+                }
+              ]}
+            />
           </div>
 
           {/* Right Column - Sidebar */}
