@@ -13,6 +13,7 @@ import {
   Bot
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 // Web Speech API compatibility
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -197,7 +198,8 @@ const VoiceChat = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
       <header className="bg-white shadow sm:border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">

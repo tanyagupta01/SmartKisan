@@ -16,6 +16,7 @@ import {
   ChartBarIcon,
   SunIcon
 } from 'lucide-react';
+import { CalendarIcon } from "@heroicons/react/24/outline";
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import DashboardCard from '../components/DashboardCard';
@@ -60,42 +61,6 @@ const Dashboard = () => {
     }
   }, []);
 
-  // const [marketPrices] = useState([
-  //   { crop: 'Wheat', price: '₹2,150/quintal', change: '+5.2%', trend: 'up' },
-  //   { crop: 'Rice', price: '₹3,200/quintal', change: '+2.1%', trend: 'up' },
-  //   { crop: 'Cotton', price: '₹5,800/quintal', change: '-1.5%', trend: 'down' },
-  //   { crop: 'Sugarcane', price: '₹340/quintal', change: '+3.8%', trend: 'up' }
-  // ]);
-
-  useEffect(() => {
-    const fetchMarketPrices = async () => {
-      try {
-        const response = await axios.get('https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070', {
-          params: {
-            'api-key': import.meta.env.VITE_AGMARK_API_KEY, // store your API key in .env file
-            'format': 'json',
-            'filters[state]': 'Punjab', // Change based on location
-            'filters[commodity]': 'Wheat', // Optional: you can loop through multiple crops
-            'limit': 5
-          }
-        });
-
-        const formattedPrices = response.data.records.map(item => ({
-          crop: item.commodity,
-          price: `₹${item.min_price}/quintal`, // or avg_price
-          change: '+0.0%', // Static unless you calculate diff over days
-          trend: 'up' // Logic can be added to analyze price trends
-        }));
-
-        setMarketPrices(formattedPrices);
-      } catch (error) {
-        console.error('Error fetching Agmarknet data:', error);
-      }
-    };
-
-    fetchMarketPrices();
-  }, []);
-
   const [schemes] = useState([
     { name: 'PM-KISAN', amount: '₹6,000', status: 'Available', type: 'Direct Benefit' },
     { name: 'Crop Insurance', amount: 'Up to ₹2L', status: 'Apply Now', type: 'Insurance' },
@@ -121,8 +86,28 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Weather Section */}
+        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Cloud className="h-5 w-5 mr-2 text-blue-500" />
+              <span className="font-medium text-gray-900">
+                {currentWeather ? `${Math.round(currentWeather.temp)}°C, ${currentWeather.condition}` : 'Loading weather...'}
+              </span>
+            </div>
+            {currentWeather && (
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <span>{currentWeather.humidity}% humidity</span>
+                <span>{currentWeather.rainfall} rain</span>
+                <MapPin className="h-4 w-4" />
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <DashboardCard
             title="Analyze Crop"
             subtitle="Take a photo to detect issues"
@@ -151,69 +136,37 @@ const Dashboard = () => {
             ]}
           />
 
+          <DashboardCard
+            title="Generate Calender"
+            subtitle="Get a tailored farming timetable"
+            icon={CalendarIcon}
+            onClick={() => handleNavigation('/calender')}
+            actions={[
+              { 
+                label: 'Get Timetable', 
+                icon: CalendarIcon, 
+                onClick: () => handleNavigation('/calender') 
+              }
+            ]}
+          />
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* Weather Card */}
             <DashboardCard
-              title="Today's Weather"
-              subtitle={currentWeather ? `${currentWeather.temp}°C - ${currentWeather.condition}` : 'Loading weather...'}
-              icon={Cloud}
-              // badge="Perfect for Sowing"
-            >
-              {currentWeather && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-white">
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.humidity}%</p>
-                    <p className="text-sm opacity-90">Humidity</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold">{currentWeather.rainfall}</p>
-                    <p className="text-sm opacity-90">Expected Rainfall</p>
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Current Location</span>
-                  </div>
-                </div>
-              )}
-            </DashboardCard>
-
-            {/* Market Prices */}
-            <DashboardCard
-              title="Market Prices"
-              subtitle="Latest crop prices in your region"
+              title="Mandi Prices"
+              subtitle="Get latest crop prices in your region"
               icon={TrendingUp}
+              onClick={() => handleNavigation('/market-data')}
               actions={[
                 { 
-                  label: 'View All', 
+                  label: 'Get mandi prices', 
                   icon: TrendingUp, 
                   onClick: () => handleNavigation('/market-data') 
                 }
               ]}
-            >
-              <div className="space-y-4">
-                {marketPrices.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-3 border-b last:border-b-0">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{item.crop}</h4>
-                      <p className="text-lg font-bold text-gray-900">{item.price}</p>
-                    </div>
-                    <div className="text-right flex items-center space-x-2">
-                      <span className={`text-sm font-medium ${getTrendColor(item.trend)}`}>
-                        {item.change}
-                      </span>
-                      {item.trend === 'up' ? (
-                        <ArrowUpIcon className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <ArrowDownIcon className="h-4 w-4 text-red-600" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </DashboardCard>
+            />
           </div>
 
           {/* Right Column - Sidebar */}
