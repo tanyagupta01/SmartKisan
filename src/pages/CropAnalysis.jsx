@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { 
   Camera, 
   Upload, 
@@ -11,6 +11,62 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resizeAndCompress, fastCompress } from '../utils/compress-image';
 import Navbar from '../components/Navbar';
+
+// Translation utility
+const translateText = async (text, targetLang) => {
+  // Check if Google Translate is available
+  if (window.google && window.google.translate) {
+    try {
+      // Use Google Translate API if available
+      const result = await window.google.translate.translate(text, { to: targetLang });
+      return result.translatedText || text;
+    } catch (error) {
+      console.warn('Google Translate API failed:', error);
+      return text;
+    }
+  }
+  return text;
+};
+
+// Hook for managing translations
+const useTranslation = () => {
+  const [translations, setTranslations] = useState({});
+  const [currentLang, setCurrentLang] = useState('en');
+
+  const detectLanguage = useCallback(() => {
+    // Detect current Google Translate language
+    const gtCombo = document.querySelector('.goog-te-combo');
+    if (gtCombo) {
+      return gtCombo.value || 'en';
+    }
+    
+    // Fallback: check HTML lang attribute or document language
+    return document.documentElement.lang || navigator.language.split('-')[0] || 'en';
+  }, []);
+
+  const translateAndCache = useCallback(async (key, text) => {
+    const lang = detectLanguage();
+    setCurrentLang(lang);
+
+    if (lang === 'en' || translations[`${key}_${lang}`]) {
+      return translations[`${key}_${lang}`] || text;
+    }
+
+    try {
+      const translated = await translateText(text, lang);
+      setTranslations(prev => ({
+        ...prev,
+        [`${key}_${lang}`]: translated
+      }));
+      return translated;
+    } catch (error) {
+      console.warn('Translation failed for:', key, error);
+      return text;
+    }
+  }, [translations, detectLanguage]);
+
+  return { translateAndCache, currentLang };
+};
 
 // Button Component (matching dashboard)
 const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
@@ -98,6 +154,20 @@ const CardContent = React.forwardRef(({ className = '', children, ...props }, re
   );
 });
 
+// Translatable Text Component
+const TranslatableText = ({ children, translationKey, className = "", tag: Tag = "span" }) => {
+  const { translateAndCache } = useTranslation();
+  const [translatedText, setTranslatedText] = useState(children);
+
+  useEffect(() => {
+    if (translationKey && typeof children === 'string') {
+      translateAndCache(translationKey, children).then(setTranslatedText);
+    }
+  }, [children, translationKey, translateAndCache]);
+
+  return <Tag className={className}>{translatedText}</Tag>;
+};
+
 // Pre-configured axios instance
 const apiClient = axios.create({
   baseURL: 'https://smartkisan.onrender.com',
@@ -117,6 +187,34 @@ const CropAnalysis = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [processingTime, setProcessingTime] = useState(null);
   const [progress, setProgress] = useState(0);
+
+  const { translateAndCache } = useTranslation();
+
+  // Force re-translation when analysis result changes
+  useEffect(() => {
+    if (analysisResult) {
+      // Trigger translation of dynamic content
+      const timer = setTimeout(() => {
+        // Manually trigger Google Translate for dynamic content
+        if (window.google && window.google.translate) {
+          try {
+            window.google.translate.getTranslateLib().then(() => {
+              const elements = document.querySelectorAll('[data-translate="dynamic"]');
+              elements.forEach(el => {
+                if (!el.hasAttribute('translate')) {
+                  el.setAttribute('translate', 'yes');
+                }
+              });
+            });
+          } catch (error) {
+            console.warn('Could not trigger Google Translate:', error);
+          }
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [analysisResult]);
 
   const handleImageUpload = useCallback(async (event) => {
     const file = event.target.files?.[0];
@@ -304,68 +402,110 @@ const CropAnalysis = () => {
                   className="hidden"
                 />
 
-                {/* Analyze Button */}
+                {/* Analyze Button - Using a stable container with translate="no" but translatable content */}
                 {selectedImage && !analysisResult && (
                   <div className="text-center">
-                    <Button 
-                      onClick={analyzeImage}
-                      disabled={isAnalyzing}
-                      size="lg"
-                      className="bg-green-600 hover:bg-green-700 text-white px-8"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Analyzing... {progress}%
-                        </>
-                      ) : (
-                        'Analyze Crop Health'
-                      )}
-                    </Button>
+                    <div translate="no">
+                      <Button 
+                        onClick={analyzeImage}
+                        disabled={isAnalyzing}
+                        size="lg"
+                        className="bg-green-600 hover:bg-green-700 text-white px-8"
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            <TranslatableText 
+                              translationKey="analyzing_progress"
+                            >
+                              Analyzing... {progress}%
+                            </TranslatableText>
+                          </>
+                        ) : (
+                          <TranslatableText 
+                            translationKey="analyze_button"
+                          >
+                            Analyze Crop Health
+                          </TranslatableText>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Analysis Progress */}
+          {/* Analysis Progress - Protected container with translatable content */}
           {isAnalyzing && (
             <Card className="mb-8">
               <CardContent className="p-8">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4">
+                  <div className="w-16 h-16 mx-auto mb-4" translate="no">
                     <div className="w-full h-full border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">AI Analysis in Progress</h3>
-                  <p className="text-gray-600 mb-4">Processing your crop image using advanced computer vision...</p>
-                  <div className="bg-gray-200 rounded-full h-3 mb-4">
+                  <TranslatableText 
+                    translationKey="ai_analysis_title"
+                    tag="h3"
+                    className="text-xl font-semibold mb-2"
+                  >
+                    AI Analysis in Progress
+                  </TranslatableText>
+                  <TranslatableText 
+                    translationKey="processing_description"
+                    tag="p"
+                    className="text-gray-600 mb-4"
+                  >
+                    Processing your crop image using advanced computer vision...
+                  </TranslatableText>
+                  <div className="bg-gray-200 rounded-full h-3 mb-4" translate="no">
                     <div 
                       className="bg-green-600 h-3 rounded-full transition-all duration-300" 
                       style={{ width: `${progress}%` }}
                     ></div>
                   </div>
                   <p className="text-sm text-gray-500">
-                    {progress < 30 && "🔍 Analyzing image quality..."}
-                    {progress >= 30 && progress < 60 && "🌱 Identifying crop species..."}
-                    {progress >= 60 && progress < 90 && "🔬 Detecting diseases and pests..."}
-                    {progress >= 90 && "✅ Finalizing results..."}
+                    {progress < 30 && (
+                      <TranslatableText translationKey="progress_analyzing">
+                        🔍 Analyzing image quality...
+                      </TranslatableText>
+                    )}
+                    {progress >= 30 && progress < 60 && (
+                      <TranslatableText translationKey="progress_identifying">
+                        🌱 Identifying crop species...
+                      </TranslatableText>
+                    )}
+                    {progress >= 60 && progress < 90 && (
+                      <TranslatableText translationKey="progress_detecting">
+                        🔬 Detecting diseases and pests...
+                      </TranslatableText>
+                    )}
+                    {progress >= 90 && (
+                      <TranslatableText translationKey="progress_finalizing">
+                        ✅ Finalizing results...
+                      </TranslatableText>
+                    )}
                   </p>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Analysis Results */}
+          {/* Analysis Results - Protected container with translatable dynamic content */}
           {analysisResult && (
             <div className="space-y-6">
               {/* Main Result Card */}
               <Card className="border-l-4 border-l-green-500">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>Analysis Results</span>
+                    <TranslatableText translationKey="analysis_results_title">
+                      Analysis Results
+                    </TranslatableText>
                     {processingTime && (
-                      <span className="text-sm text-green-600 font-normal">
-                        Completed in {(processingTime / 1000).toFixed(1)}s
+                      <span className="text-sm text-green-600 font-normal" translate="no">
+                        <TranslatableText translationKey="completion_time">
+                          Completed in {(processingTime / 1000).toFixed(1)}s
+                        </TranslatableText>
                       </span>
                     )}
                   </CardTitle>
@@ -374,17 +514,35 @@ const CropAnalysis = () => {
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Crop Type</h4>
-                        <p className="text-lg font-bold text-gray-900">{analysisResult.crop}</p>
+                        <TranslatableText 
+                          translationKey="crop_type_label"
+                          tag="h4"
+                          className="font-semibold text-gray-700 mb-1"
+                        >
+                          Crop Type
+                        </TranslatableText>
+                        <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
+                          {analysisResult.crop}
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Detected Issue</h4>
-                        <p className="text-lg font-bold text-gray-900">{analysisResult.disease}</p>
+                        <TranslatableText 
+                          translationKey="detected_issue_label"
+                          tag="h4"
+                          className="font-semibold text-gray-700 mb-1"
+                        >
+                          Detected Issue
+                        </TranslatableText>
+                        <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
+                          {analysisResult.disease}
+                        </p>
                       </div>
                     </div>
                     
                     <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-gray-700">{analysisResult.description}</p>
+                      <p className="text-gray-700" data-translate="dynamic">
+                        {analysisResult.description}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -393,32 +551,63 @@ const CropAnalysis = () => {
               {/* Treatment Recommendations */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-blue-700">Treatment Recommendations</CardTitle>
+                  <CardTitle className="text-lg text-blue-700">
+                    <TranslatableText translationKey="treatment_recommendations_title">
+                      Treatment Recommendations
+                    </TranslatableText>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
                     {analysisResult.treatment.map((item, index) => (
                       <li key={index} className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-gray-700">{item}</span>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
+                        <span className="text-gray-700" data-translate="dynamic">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
 
+              {/* Mandi Information - Only if available */}
+              {analysisResult.mandi && analysisResult.mandi.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg text-green-700">
+                      <TranslatableText translationKey="market_info_title">
+                        Nearby Market Information
+                      </TranslatableText>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      {analysisResult.mandi.map((market, index) => (
+                        <li key={index} className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
+                          <span className="text-gray-700" data-translate="dynamic">{market}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setAnalysisResult(null);
-                    setProcessingTime(null);
-                  }}
-                >
-                  Analyze Another Image
-                </Button>
+                <div translate="no">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setAnalysisResult(null);
+                      setProcessingTime(null);
+                    }}
+                  >
+                    <TranslatableText translationKey="analyze_another_button">
+                      Analyze Another Image
+                    </TranslatableText>
+                  </Button>
+                </div>
               </div>
             </div>
           )}
