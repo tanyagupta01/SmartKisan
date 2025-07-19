@@ -5,16 +5,9 @@ import {
   Cloud, 
   TrendingUp, 
   MapPin, 
-  Bell, 
-  User, 
-  Settings, 
   Home, 
   BarChart3, 
   MessageCircle,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ChartBarIcon,
-  SunIcon
 } from 'lucide-react';
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import Button from '../components/Button';
@@ -67,10 +60,6 @@ const Dashboard = () => {
     { name: 'Soil Health Card', amount: 'Free', status: 'Active', type: 'Testing' }
   ]);
 
-  const getTrendColor = (trend) => {
-    return trend === 'up' ? 'text-green-600' : 'text-red-600';
-  };
-
   const handleNavigation = (path) => {
     navigate(path);
     console.log(`Navigating to: ${path}`);
@@ -107,7 +96,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <DashboardCard
             title="Analyze Crop"
             subtitle="Take a photo to detect issues"
@@ -150,11 +139,7 @@ const Dashboard = () => {
             ]}
           />
 
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <DashboardCard
+          <DashboardCard
               title="Mandi Prices"
               subtitle="Get latest crop prices in your region"
               icon={TrendingUp}
@@ -167,8 +152,10 @@ const Dashboard = () => {
                 }
               ]}
             />
-          </div>
 
+        </div>
+
+        <div className="grid grid-cols-1 gap-8">
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             {/* Government Schemes */}

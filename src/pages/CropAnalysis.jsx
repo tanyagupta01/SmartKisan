@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resizeAndCompress, fastCompress } from '../utils/compress-image';
 import Navbar from '../components/Navbar';
+import Button from '../components/Button';
+import DashboardCard from '../components/DashboardCard';
 
 // Translation utility
 const translateText = async (text, targetLang) => {
@@ -68,92 +70,6 @@ const useTranslation = () => {
   return { translateAndCache, currentLang };
 };
 
-// Button Component (matching dashboard)
-const Button = React.forwardRef(({ className = '', variant = 'default', size = 'default', children, ...props }, ref) => {
-  const baseClasses = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-  
-  const variantClasses = {
-    default: "bg-blue-600 text-white hover:bg-blue-700",
-    destructive: "bg-red-600 text-white hover:bg-red-700",
-    outline: "border border-gray-300 bg-white hover:bg-gray-50",
-    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-    ghost: "hover:bg-gray-100",
-    link: "text-blue-600 underline-offset-4 hover:underline",
-  };
-  
-  const sizeClasses = {
-    default: "h-10 px-4 py-2",
-    sm: "h-9 rounded-md px-3",
-    lg: "h-11 rounded-md px-8",
-    icon: "h-10 w-10",
-  };
-  
-  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
-  
-  return (
-    <button
-      className={classes}
-      ref={ref}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-});
-
-// Card Components (matching dashboard)
-const Card = React.forwardRef(({ className = '', children, ...props }, ref) => {
-  const classes = `rounded-lg border bg-white text-gray-900 shadow-sm ${className}`;
-  
-  return (
-    <div
-      ref={ref}
-      className={classes}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
-
-const CardHeader = React.forwardRef(({ className = '', children, ...props }, ref) => {
-  const classes = `flex flex-col space-y-1.5 p-6 ${className}`;
-  
-  return (
-    <div
-      ref={ref}
-      className={classes}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
-
-const CardTitle = React.forwardRef(({ className = '', children, ...props }, ref) => {
-  const classes = `text-lg font-semibold leading-none tracking-tight ${className}`;
-  
-  return (
-    <h3
-      ref={ref}
-      className={classes}
-      {...props}
-    >
-      {children}
-    </h3>
-  );
-});
-
-const CardContent = React.forwardRef(({ className = '', children, ...props }, ref) => {
-  const classes = `p-6 pt-0 ${className}`;
-  
-  return (
-    <div ref={ref} className={classes} {...props}>
-      {children}
-    </div>
-  );
-});
-
 // Translatable Text Component
 const TranslatableText = ({ children, translationKey, className = "", tag: Tag = "span" }) => {
   const { translateAndCache } = useTranslation();
@@ -172,7 +88,7 @@ const TranslatableText = ({ children, translationKey, className = "", tag: Tag =
 const apiClient = axios.create({
   baseURL: 'https://smartkisan.onrender.com',
   // baseURL: 'http://localhost:5050',
-  timeout: 30000, // 30 second timeout
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -328,268 +244,238 @@ const CropAnalysis = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Image Upload Section */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Upload or Capture Crop Image</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Image Preview */}
-                {selectedImage ? (
-                  <div className="relative">
-                    <img 
-                      src={selectedImage} 
-                      alt="Selected crop" 
-                      className="w-full max-w-md mx-auto rounded-lg shadow-lg"
-                    />
+          <DashboardCard
+            title="Upload or Capture Crop Image"
+            className="mb-8"
+          >
+            <div className="space-y-6">
+              {/* Image Preview */}
+              {selectedImage ? (
+                <div className="relative">
+                  <img 
+                    src={selectedImage} 
+                    alt="Selected crop" 
+                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setAnalysisResult(null);
+                      setProcessingTime(null);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-green-400 transition-colors">
+                  <Camera className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                  <p className="text-lg text-gray-600 mb-2">No image selected</p>
+                  <p className="text-sm text-gray-500">Take a clear photo of your crop showing any affected areas</p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={handleCameraCapture}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={isAnalyzing}
+                >
+                  <Camera className="mr-2 h-5 w-5" />
+                  Capture Photo
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={handleGalleryUpload}
+                  disabled={isAnalyzing}
+                >
+                  <Upload className="mr-2 h-5 w-5" />
+                  Upload from Gallery
+                </Button>
+              </div>
+
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+
+              {/* Analyze Button */}
+              {selectedImage && !analysisResult && (
+                <div className="text-center">
+                  <div translate="no">
                     <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="absolute top-2 right-2"
-                      onClick={() => {
-                        setSelectedImage(null);
-                        setAnalysisResult(null);
-                        setProcessingTime(null);
-                      }}
+                      onClick={analyzeImage}
+                      disabled={isAnalyzing}
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white px-8"
                     >
-                      Remove
+                      {isAnalyzing ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <TranslatableText 
+                            translationKey="analyzing_progress"
+                          >
+                            Analyzing... {progress}%
+                          </TranslatableText>
+                        </>
+                      ) : (
+                        <TranslatableText 
+                          translationKey="analyze_button"
+                        >
+                          Analyze Crop Health
+                        </TranslatableText>
+                      )}
                     </Button>
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-green-400 transition-colors">
-                    <Camera className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                    <p className="text-lg text-gray-600 mb-2">No image selected</p>
-                    <p className="text-sm text-gray-500">Take a clear photo of your crop showing any affected areas</p>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    onClick={handleCameraCapture}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isAnalyzing}
-                  >
-                    <Camera className="mr-2 h-5 w-5" />
-                    Capture Photo
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={handleGalleryUpload}
-                    disabled={isAnalyzing}
-                  >
-                    <Upload className="mr-2 h-5 w-5" />
-                    Upload from Gallery
-                  </Button>
                 </div>
+              )}
+            </div>
+          </DashboardCard>
 
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                
-                <input
-                  ref={galleryInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-
-                {/* Analyze Button - Using a stable container with translate="no" but translatable content */}
-                {selectedImage && !analysisResult && (
-                  <div className="text-center">
-                    <div translate="no">
-                      <Button 
-                        onClick={analyzeImage}
-                        disabled={isAnalyzing}
-                        size="lg"
-                        className="bg-green-600 hover:bg-green-700 text-white px-8"
-                      >
-                        {isAnalyzing ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            <TranslatableText 
-                              translationKey="analyzing_progress"
-                            >
-                              Analyzing... {progress}%
-                            </TranslatableText>
-                          </>
-                        ) : (
-                          <TranslatableText 
-                            translationKey="analyze_button"
-                          >
-                            Analyze Crop Health
-                          </TranslatableText>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Analysis Progress - Protected container with translatable content */}
+          {/* Analysis Progress */}
           {isAnalyzing && (
-            <Card className="mb-8">
-              <CardContent className="p-8">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4" translate="no">
-                    <div className="w-full h-full border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-                  </div>
-                  <TranslatableText 
-                    translationKey="ai_analysis_title"
-                    tag="h3"
-                    className="text-xl font-semibold mb-2"
-                  >
-                    AI Analysis in Progress
-                  </TranslatableText>
-                  <TranslatableText 
-                    translationKey="processing_description"
-                    tag="p"
-                    className="text-gray-600 mb-4"
-                  >
-                    Processing your crop image using advanced computer vision...
-                  </TranslatableText>
-                  <div className="bg-gray-200 rounded-full h-3 mb-4" translate="no">
-                    <div 
-                      className="bg-green-600 h-3 rounded-full transition-all duration-300" 
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {progress < 30 && (
-                      <TranslatableText translationKey="progress_analyzing">
-                        🔍 Analyzing image quality...
-                      </TranslatableText>
-                    )}
-                    {progress >= 30 && progress < 60 && (
-                      <TranslatableText translationKey="progress_identifying">
-                        🌱 Identifying crop species...
-                      </TranslatableText>
-                    )}
-                    {progress >= 60 && progress < 90 && (
-                      <TranslatableText translationKey="progress_detecting">
-                        🔬 Detecting diseases and pests...
-                      </TranslatableText>
-                    )}
-                    {progress >= 90 && (
-                      <TranslatableText translationKey="progress_finalizing">
-                        ✅ Finalizing results...
-                      </TranslatableText>
-                    )}
-                  </p>
+            <DashboardCard className="mb-8">
+              <div className="text-center p-8">
+                <div className="w-16 h-16 mx-auto mb-4" translate="no">
+                  <div className="w-full h-full border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
                 </div>
-              </CardContent>
-            </Card>
+                <TranslatableText 
+                  translationKey="ai_analysis_title"
+                  tag="h3"
+                  className="text-xl font-semibold mb-2"
+                >
+                  AI Analysis in Progress
+                </TranslatableText>
+                <TranslatableText 
+                  translationKey="processing_description"
+                  tag="p"
+                  className="text-gray-600 mb-4"
+                >
+                  Processing your crop image using advanced computer vision...
+                </TranslatableText>
+                <div className="bg-gray-200 rounded-full h-3 mb-4" translate="no">
+                  <div 
+                    className="bg-green-600 h-3 rounded-full transition-all duration-300" 
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  {progress < 30 && (
+                    <TranslatableText translationKey="progress_analyzing">
+                      🔍 Analyzing image quality...
+                    </TranslatableText>
+                  )}
+                  {progress >= 30 && progress < 60 && (
+                    <TranslatableText translationKey="progress_identifying">
+                      🌱 Identifying crop species...
+                    </TranslatableText>
+                  )}
+                  {progress >= 60 && progress < 90 && (
+                    <TranslatableText translationKey="progress_detecting">
+                      🔬 Detecting diseases and pests...
+                    </TranslatableText>
+                  )}
+                  {progress >= 90 && (
+                    <TranslatableText translationKey="progress_finalizing">
+                      ✅ Finalizing results...
+                    </TranslatableText>
+                  )}
+                </p>
+              </div>
+            </DashboardCard>
           )}
 
-          {/* Analysis Results - Protected container with translatable dynamic content */}
+          {/* Analysis Results */}
           {analysisResult && (
             <div className="space-y-6">
               {/* Main Result Card */}
-              <Card className="border-l-4 border-l-green-500">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <TranslatableText translationKey="analysis_results_title">
-                      Analysis Results
-                    </TranslatableText>
-                    {processingTime && (
-                      <span className="text-sm text-green-600 font-normal" translate="no">
-                        <TranslatableText translationKey="completion_time">
-                          Completed in {(processingTime / 1000).toFixed(1)}s
-                        </TranslatableText>
-                      </span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <TranslatableText 
-                          translationKey="crop_type_label"
-                          tag="h4"
-                          className="font-semibold text-gray-700 mb-1"
-                        >
-                          Crop Type
-                        </TranslatableText>
-                        <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
-                          {analysisResult.crop}
-                        </p>
-                      </div>
-                      <div>
-                        <TranslatableText 
-                          translationKey="detected_issue_label"
-                          tag="h4"
-                          className="font-semibold text-gray-700 mb-1"
-                        >
-                          Detected Issue
-                        </TranslatableText>
-                        <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
-                          {analysisResult.disease}
-                        </p>
-                      </div>
+              <DashboardCard
+                title="Analysis Results"
+                subtitle={processingTime ? `Completed in ${(processingTime / 1000).toFixed(1)}s` : undefined}
+                className="border-l-4 border-l-green-500"
+              >
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <TranslatableText 
+                        translationKey="crop_type_label"
+                        tag="h4"
+                        className="font-semibold text-gray-700 mb-1"
+                      >
+                        Crop Type
+                      </TranslatableText>
+                      <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
+                        {analysisResult.crop}
+                      </p>
                     </div>
-                    
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-gray-700" data-translate="dynamic">
-                        {analysisResult.description}
+                    <div>
+                      <TranslatableText 
+                        translationKey="detected_issue_label"
+                        tag="h4"
+                        className="font-semibold text-gray-700 mb-1"
+                      >
+                        Detected Issue
+                      </TranslatableText>
+                      <p className="text-lg font-bold text-gray-900" data-translate="dynamic">
+                        {analysisResult.disease}
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-gray-700" data-translate="dynamic">
+                      {analysisResult.description}
+                    </p>
+                  </div>
+                </div>
+              </DashboardCard>
 
               {/* Treatment Recommendations */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg text-blue-700">
-                    <TranslatableText translationKey="treatment_recommendations_title">
-                      Treatment Recommendations
-                    </TranslatableText>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {analysisResult.treatment.map((item, index) => (
-                      <li key={index} className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
-                        <span className="text-gray-700" data-translate="dynamic">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <DashboardCard
+                title="Treatment Recommendations"
+                className="text-blue-700"
+              >
+                <ul className="space-y-3">
+                  {analysisResult.treatment.map((item, index) => (
+                    <li key={index} className="flex items-start space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
+                      <span className="text-gray-700" data-translate="dynamic">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </DashboardCard>
 
               {/* Mandi Information - Only if available */}
               {analysisResult.mandi && analysisResult.mandi.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg text-green-700">
-                      <TranslatableText translationKey="market_info_title">
-                        Nearby Market Information
-                      </TranslatableText>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {analysisResult.mandi.map((market, index) => (
-                        <li key={index} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
-                          <span className="text-gray-700" data-translate="dynamic">{market}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                <DashboardCard
+                  title="Nearby Market Information"
+                  className="text-green-700"
+                >
+                  <ul className="space-y-3">
+                    {analysisResult.mandi.map((market, index) => (
+                      <li key={index} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
+                        <span className="text-gray-700" data-translate="dynamic">{market}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </DashboardCard>
               )}
 
               {/* Action Buttons */}
