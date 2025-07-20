@@ -21,7 +21,7 @@ Please provide the response in the following JSON format only (no additional tex
 {
   "crop": "${crop}",
   "location": "${location}",
-  "season": "appropriate season with year (e.g., Rabi 2025-26, Kharif 2025)",
+  "season": "appropriate season with year (e.g., Rabi, Kharif)",
   "activities": [
     {
       "month": "Month Year",
@@ -46,7 +46,7 @@ Please provide the response in the following JSON format only (no additional tex
 Requirements:
 1. Include ALL major farming activities: land preparation, seed treatment, sowing, irrigation, fertilization, pest control, disease management, weeding, pruning (if applicable), and harvesting
 2. Consider the specific climate and soil conditions of ${location}
-3. Provide at least 6-8 months of detailed farming schedule
+3. Provide at least 5-8 months of detailed farming schedule
 4. Include specific dates and timings based on local agricultural practices
 5. Assign appropriate priority levels (high/medium/low) to each task
 6. Consider the current date and plan accordingly for the upcoming growing season

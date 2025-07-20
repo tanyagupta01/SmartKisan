@@ -1,8 +1,9 @@
 import express from 'express';
 import voiceChatRoute from './voiceChatRoute.js';
 import imageRoute from './imageRoute.js';
-import calenderRoute from './calenderRoute.js'
-import marketRoute from './marketRoute.js'
+import calenderRoute from './calenderRoute.js';
+import marketRoute from './marketRoute.js';
+import govtSchemeRoute from './govtSchemesRoute.js';
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/', voiceChatRoute);
 router.use('/', imageRoute);
 router.use('/', calenderRoute);
 router.use('/', marketRoute)
+router.use('/', govtSchemeRoute);
 
 export default router;

@@ -140,6 +140,19 @@ const Dashboard = () => {
               ]}
             />
 
+            <DashboardCard
+              title="Government Schemes"
+              subtitle="Check government schemes you are eligible for"
+              icon={TrendingUp}
+              onClick={() => handleNavigation('/govt-schemes')}
+              actions={[
+                { 
+                  label: 'Get mandi prices', 
+                  onClick: () => handleNavigation('/govt-schemes') 
+                }
+              ]}
+            />
+
         </div>
 
         <div className="grid grid-cols-1 gap-8">
