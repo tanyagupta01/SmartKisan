@@ -593,3 +593,9 @@ body {
   background: none !important;
   box-shadow: none !important;
 }
+
+.goog-te-spinner-pos,
+.goog-te-spinner-icon,
+.goog-te-gadget-icon {
+  display: none !important;
+}
