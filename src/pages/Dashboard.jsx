@@ -147,7 +147,7 @@ const Dashboard = () => {
               onClick={() => handleNavigation('/govt-schemes')}
               actions={[
                 { 
-                  label: 'Get mandi prices', 
+                  label: 'Find government schemes', 
                   onClick: () => handleNavigation('/govt-schemes') 
                 }
               ]}
@@ -173,10 +173,6 @@ const Dashboard = () => {
           <Button variant="ghost" className="flex flex-col items-center py-2 px-1" onClick={() => handleNavigation('/market-data')}>
             <BarChart3 className="h-5 w-5" />
             <span className="text-xs mt-1">Market</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center py-2 px-1">
-            <MessageCircle className="h-5 w-5" />
-            <span className="text-xs mt-1">Chat</span>
           </Button>
         </div>
       </div>
