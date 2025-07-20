@@ -291,7 +291,7 @@ const CropAnalysis = () => {
                           <TranslatableText 
                             translationKey="analyzing_progress"
                           >
-                            Analyzing... {progress}%
+                            Analyzing...
                           </TranslatableText>
                         </>
                       ) : (
@@ -364,14 +364,13 @@ const CropAnalysis = () => {
           {/* Analysis Results */}
           {analysisResult && (
             <div className="space-y-6">
-              {/* Main Result Card */}
               <DashboardCard
                 title="Analysis Results"
                 subtitle={processingTime ? `Completed in ${(processingTime / 1000).toFixed(1)}s` : undefined}
                 className="border-l-4 border-l-green-500"
               >
                 <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4 mt-3">
                     <div>
                       <TranslatableText 
                         translationKey="crop_type_label"
@@ -406,12 +405,11 @@ const CropAnalysis = () => {
                 </div>
               </DashboardCard>
 
-              {/* Treatment Recommendations */}
               <DashboardCard
                 title="Treatment Recommendations"
                 className="text-blue-700"
               >
-                <ul className="space-y-3">
+                <ul className="space-y-3 mt-3">
                   {analysisResult.treatment.map((item, index) => (
                     <li key={index} className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
@@ -420,23 +418,6 @@ const CropAnalysis = () => {
                   ))}
                 </ul>
               </DashboardCard>
-
-              {/* Mandi Information - Only if available */}
-              {analysisResult.mandi && analysisResult.mandi.length > 0 && (
-                <DashboardCard
-                  title="Nearby Market Information"
-                  className="text-green-700"
-                >
-                  <ul className="space-y-3">
-                    {analysisResult.mandi.map((market, index) => (
-                      <li key={index} className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" translate="no"></div>
-                        <span className="text-gray-700" data-translate="dynamic">{market}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </DashboardCard>
-              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

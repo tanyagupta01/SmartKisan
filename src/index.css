@@ -350,18 +350,6 @@ body {
   line-height: 1.6;
 }
 
-.text-footer-heading {
-  font: var(--body-large-500);
-  color: var(--gray-700);
-  font-weight: 600;
-}
-
-.text-footer-subheading {
-  font: var(--body-regular-500);
-  color: var(--gray-500);
-  font-weight: 400;
-}
-
 .text-navbar {
   font: var(--body-regular-400);
   color: var(--gray-700);
@@ -402,11 +390,6 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-}
-
-.stats-title {
-  font: var(--body-regular-500);
-  color: var(--gray-600);
 }
 
 .model-card-body {

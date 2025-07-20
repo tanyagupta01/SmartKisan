@@ -204,7 +204,7 @@ const VoiceChat = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
-        <Card title="Choose Your Language" subtitle="Select your question language" icon={MessageSquare}>
+        <Card title="Choose Your Language" icon={MessageSquare}>
           <select
             value={selectedLanguage}
             onChange={e => setSelectedLanguage(e.target.value)}
