@@ -68,10 +68,6 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar/>
 
-      <div className="flex justify-center mt-4 mb-4">
-        <CustomTranslateDropdown />
-      </div>
-
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
           <div className="flex items-center justify-between">

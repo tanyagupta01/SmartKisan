@@ -599,3 +599,7 @@ body {
 .goog-te-gadget-icon {
   display: none !important;
 }
+
+div[id^=":"] > .goog-te-gadget {
+  display: none !important;
+}

@@ -11,6 +11,7 @@ import {
   UserCircleIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import CustomTranslateDropdown from './CustonTranslateDropdown';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -40,7 +41,6 @@ const Navbar = () => {
     <nav className="bg-green-600 shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo + Title */}
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-xl">🌾</span>
@@ -74,7 +74,8 @@ const Navbar = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            {/* Notifications */}
+            <CustomTranslateDropdown />
+
             <div className="relative">
               <button
                 onClick={toggleNotificationMenu}
@@ -83,7 +84,6 @@ const Navbar = () => {
                 <BellIcon className="h-5 w-5 text-gray-100" />
               </button>
 
-              {/* Notifications Dropdown */}
               {isNotificationMenuOpen && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-200">
@@ -114,7 +114,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* User Profile */}
             <div className="relative">
               <button
                 onClick={toggleProfileMenu}
@@ -124,7 +123,6 @@ const Navbar = () => {
                 <ChevronDownIcon className="h-4 w-4 text-gray-600" />
               </button>
 
-              {/* Profile Dropdown */}
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-200">

@@ -16,10 +16,8 @@ import DashboardCard from '../components/DashboardCard';
 
 // Translation utility
 const translateText = async (text, targetLang) => {
-  // Check if Google Translate is available
   if (window.google && window.google.translate) {
     try {
-      // Use Google Translate API if available
       const result = await window.google.translate.translate(text, { to: targetLang });
       return result.translatedText || text;
     } catch (error) {
@@ -30,7 +28,6 @@ const translateText = async (text, targetLang) => {
   return text;
 };
 
-// Hook for managing translations
 const useTranslation = () => {
   const [translations, setTranslations] = useState({});
   const [currentLang, setCurrentLang] = useState('en');

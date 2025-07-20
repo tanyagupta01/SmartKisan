@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Globe, ChevronDown } from 'lucide-react';
 
 const CustomTranslateDropdown = () => {
   const [selectedLang, setSelectedLang] = useState('en');
   const [isOpen, setIsOpen] = useState(false);
   const [isTranslateReady, setIsTranslateReady] = useState(false);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )googtrans=\/[a-z]{2}\/([a-z]{2})/);
+    if (match && match[1]) {
+      setSelectedLang(match[1]);
+    }
+  }, []);
 
   const languages = [
     { code: 'en', name: 'English', native: 'English' },
