@@ -180,7 +180,8 @@ const GovernmentSchemes = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5050/api/government-schemes', {
+      // const response = await fetch('http://localhost:5050/api/government-schemes', {
+      const response = await fetch('https://smartkisan.onrender.com/api/government-schemes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

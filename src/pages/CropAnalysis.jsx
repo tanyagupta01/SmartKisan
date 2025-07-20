@@ -144,8 +144,8 @@ const CropAnalysis = () => {
     try {
       const startTime = Date.now();
       
-      // const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
-      const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
+      const { data } = await axios.post('https://smartkisan.onrender.com/api/analyze-image', {
+      // const { data } = await axios.post('http://localhost:5050/api/analyze-image', {
         imageBase64: selectedImage
       });
 

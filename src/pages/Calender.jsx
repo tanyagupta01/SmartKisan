@@ -144,7 +144,7 @@ Please provide the response in the following JSON format:
 Include all major farming activities like land preparation, sowing, irrigation, fertilization, pest control, disease management, weeding, and harvesting. Consider the local climate and soil conditions of ${location}. Provide at least 6 months of detailed farming schedule.`;
 
     try {
-      const response = await fetch('http://localhost:5050/api/generate', {
+      const response = await fetch('https://smartkisan.onrender.com/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

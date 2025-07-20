@@ -179,7 +179,7 @@ const MarketData = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5050/api/market-data', {
+      const response = await fetch('https://smartkisan.onrender.com/api/market-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
