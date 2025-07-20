@@ -13,6 +13,7 @@ import { CalendarIcon } from "@heroicons/react/24/outline";
 import Button from '../components/Button';
 import Badge from '../components/Badge';
 import DashboardCard from '../components/DashboardCard';
+import CustomTranslateDropdown from '../components/CustonTranslateDropdown';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
@@ -25,7 +26,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get user's location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude;
@@ -68,14 +68,11 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar/>
 
-      <div id="google_translate_element" className="flex justify-center mt-4">
-        
+      <div className="flex justify-center mt-4 mb-4">
+        <CustomTranslateDropdown />
       </div>
 
-      {/* Main Content */}
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Weather Section */}
         <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -94,7 +91,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <DashboardCard
             title="Analyze Crop"
@@ -155,9 +151,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-8">
-          {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Government Schemes */}
             <DashboardCard
               title="Government Schemes"
               subtitle="Available schemes for farmers"

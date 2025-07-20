@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+/SmartKisan-api/.env
 android
 dist
