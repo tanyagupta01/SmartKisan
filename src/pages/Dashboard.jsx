@@ -152,35 +152,6 @@ const Dashboard = () => {
                 }
               ]}
             />
-
-        </div>
-
-        <div className="grid grid-cols-1 gap-8">
-          <div className="space-y-6">
-            <DashboardCard
-              title="Government Schemes"
-              subtitle="Available schemes for farmers"
-              badge="3 Active"
-            >
-              <div className="space-y-4">
-                {schemes.map((scheme, index) => (
-                  <div key={index} className="py-3 border-b last:border-b-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-900">{scheme.name}</h4>
-                      <Badge 
-                        className={`text-xs ${scheme.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}
-                      >
-                        {scheme.status}
-                      </Badge>
-                    </div>
-                    <p className="text-lg font-bold text-green-600 mb-1">{scheme.amount}</p>
-                    <p className="text-sm text-gray-500">{scheme.type}</p>
-                  </div>
-                ))}
-              </div>
-            </DashboardCard>
-
-          </div>
         </div>
       </div>
 
