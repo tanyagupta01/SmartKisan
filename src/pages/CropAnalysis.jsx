@@ -1,12 +1,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { 
-  Camera, 
-  Upload, 
-  ArrowLeft, 
-  Loader2, 
-  User,
-  Bell
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import {
+  CameraIcon,
+  CloudArrowUpIcon,
+  ArrowLeftIcon
+} from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resizeAndCompress, fastCompress } from '../utils/compress-image';
@@ -33,13 +31,10 @@ const useTranslation = () => {
   const [currentLang, setCurrentLang] = useState('en');
 
   const detectLanguage = useCallback(() => {
-    // Detect current Google Translate language
     const gtCombo = document.querySelector('.goog-te-combo');
     if (gtCombo) {
       return gtCombo.value || 'en';
     }
-    
-    // Fallback: check HTML lang attribute or document language
     return document.documentElement.lang || navigator.language.split('-')[0] || 'en';
   }, []);
 
@@ -81,16 +76,6 @@ const TranslatableText = ({ children, translationKey, className = "", tag: Tag =
   return <Tag className={className}>{translatedText}</Tag>;
 };
 
-// Pre-configured axios instance
-const apiClient = axios.create({
-  baseURL: 'https://smartkisan.onrender.com',
-  // baseURL: 'http://localhost:5050',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 const CropAnalysis = () => {
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
@@ -100,12 +85,9 @@ const CropAnalysis = () => {
   const [processingTime, setProcessingTime] = useState(null);
   const [progress, setProgress] = useState(0);
 
-  // Force re-translation when analysis result changes
   useEffect(() => {
     if (analysisResult) {
-      // Trigger translation of dynamic content
       const timer = setTimeout(() => {
-        // Manually trigger Google Translate for dynamic content
         if (window.google && window.google.translate) {
           try {
             window.google.translate.getTranslateLib().then(() => {
@@ -132,7 +114,6 @@ const CropAnalysis = () => {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const rawDataUrl = e.target.result;
-        // Use fast compression for quicker processing
         const compressed = await fastCompress(rawDataUrl, 384, 0.7);
         setSelectedImage(compressed);
         setAnalysisResult(null);
@@ -156,7 +137,6 @@ const CropAnalysis = () => {
     setIsAnalyzing(true);
     setProgress(0);
     
-    // Simulate progress for better UX
     const progressInterval = setInterval(() => {
       setProgress(prev => Math.min(prev + 10, 90));
     }, 500);
@@ -183,9 +163,8 @@ const CropAnalysis = () => {
       const status = err.response?.status || 500;
       const payload = err.response?.data || { error: err.message };
       
-      console.error(`❌ /api/analyze-image → HTTP ${status}`, JSON.stringify(payload, null, 2));
+      console.error(`/api/analyze-image → HTTP ${status}`, JSON.stringify(payload, null, 2));
       
-      // Show error to user
       setAnalysisResult({
         crop: 'Unknown',
         disease: 'Analysis Failed',
@@ -212,7 +191,7 @@ const CropAnalysis = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="icon" onClick={() => handleNavigation('/dashboard')}>
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeftIcon className="h-5 w-5" />
               </Button>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Crop Analysis</h1>
@@ -231,7 +210,6 @@ const CropAnalysis = () => {
             className="mb-8"
           >
             <div className="space-y-6">
-              {/* Image Preview */}
               {selectedImage ? (
                 <div className="relative">
                   <img 
@@ -253,8 +231,8 @@ const CropAnalysis = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-green-400 transition-colors">
-                  <Camera className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <div className="border-2 mt-4 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-green-400 transition-colors">
+                  <CameraIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <p className="text-lg text-gray-600 mb-2">No image selected</p>
                   <p className="text-sm text-gray-500">Take a clear photo of your crop showing any affected areas</p>
                 </div>
@@ -267,7 +245,7 @@ const CropAnalysis = () => {
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={isAnalyzing}
                 >
-                  <Camera className="mr-2 h-5 w-5" />
+                  <CameraIcon className="mr-2 h-5 w-5" />
                   Capture Photo
                 </Button>
                 <Button 
@@ -275,7 +253,7 @@ const CropAnalysis = () => {
                   onClick={handleGalleryUpload}
                   disabled={isAnalyzing}
                 >
-                  <Upload className="mr-2 h-5 w-5" />
+                  <CloudArrowUpIcon className="mr-2 h-5 w-5" />
                   Upload from Gallery
                 </Button>
               </div>

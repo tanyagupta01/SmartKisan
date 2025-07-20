@@ -13,7 +13,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
-// Web Speech API compatibility
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 const VoiceChat = () => {
@@ -43,7 +42,6 @@ const VoiceChat = () => {
 
   const langName = code => languages.find(l => l.code === code)?.name || 'Unknown';
 
-  // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -54,7 +52,6 @@ const VoiceChat = () => {
     scrollToBottom();
   }, [conversation, isProcessing]);
 
-  // Initialize Speech Synthesis
   useEffect(() => {
     if ('speechSynthesis' in window) {
       synthRef.current = window.speechSynthesis;
@@ -74,7 +71,6 @@ const VoiceChat = () => {
     }
   }, []);
 
-  // Initialize SpeechRecognition
   useEffect(() => {
     if (!SpeechRecognition) return;
     const recognition = new SpeechRecognition();
@@ -96,16 +92,11 @@ const VoiceChat = () => {
     recognitionRef.current = recognition;
   }, [selectedLanguage]);
 
-  // Text-to-Speech function
   const speakText = (text, language) => {
     if (!synthRef.current) return;
-
-    // Cancel any ongoing speech
     synthRef.current.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Find appropriate voice for the language
     const langConfig = languages.find(l => l.code === language);
     const speechLang = langConfig?.speechLang || 'en-US';
     
@@ -166,7 +157,6 @@ const VoiceChat = () => {
       
       const { reply } = await res.json();
 
-      // Add AI response to conversation
       setConversation(prev => [...prev, {
         type: 'assistant',
         message: reply,
@@ -174,7 +164,6 @@ const VoiceChat = () => {
         timestamp: new Date(),
       }]);
 
-      // Speak the response immediately
       speakText(reply, selectedLanguage);
 
     } catch (err) {
@@ -219,7 +208,7 @@ const VoiceChat = () => {
           <select
             value={selectedLanguage}
             onChange={e => setSelectedLanguage(e.target.value)}
-            className="block w-full rounded-md border bg-white px-3 py-2 text-sm"
+            className="block w-full rounded-md border bg-white px-3 py-2 text-sm mt-6"
           >
             {languages.map(lang => (
               <option key={lang.code} value={lang.code}>
@@ -239,7 +228,6 @@ const VoiceChat = () => {
         >
           <div className="space-y-4">
 
-            {/* Voice control button */}
             <div className="flex justify-center pb-4 border-b">
               <div className="text-center space-y-3">
                 <div className="relative mx-auto w-max">
@@ -264,7 +252,6 @@ const VoiceChat = () => {
               </div>
             </div>
 
-            {/* Conversation messages */}
             <div ref={chatContainerRef} className="h-80 overflow-y-auto space-y-4">
               {conversation.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">

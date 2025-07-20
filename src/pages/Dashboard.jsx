@@ -96,7 +96,6 @@ const Dashboard = () => {
             actions={[
               { 
                 label: 'Start Analysis', 
-                icon: Camera, 
                 onClick: () => handleNavigation('/crop-analysis') 
               }
             ]}
@@ -110,7 +109,6 @@ const Dashboard = () => {
             actions={[
               { 
                 label: 'Start Chat', 
-                icon: Mic, 
                 onClick: () => handleNavigation('/voice-chat') 
               }
             ]}
@@ -124,7 +122,6 @@ const Dashboard = () => {
             actions={[
               { 
                 label: 'Get Timetable', 
-                icon: CalendarIcon, 
                 onClick: () => handleNavigation('/calender') 
               }
             ]}
@@ -138,7 +135,6 @@ const Dashboard = () => {
               actions={[
                 { 
                   label: 'Get mandi prices', 
-                  icon: TrendingUp, 
                   onClick: () => handleNavigation('/market-data') 
                 }
               ]}

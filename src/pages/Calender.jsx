@@ -12,12 +12,9 @@ import DashboardCard from '../components/DashboardCard';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
 
-// Translation utility (same as CropAnalysis)
 const translateText = async (text, targetLang) => {
-  // Check if Google Translate is available
   if (window.google && window.google.translate) {
     try {
-      // Use Google Translate API if available
       const result = await window.google.translate.translate(text, { to: targetLang });
       return result.translatedText || text;
     } catch (error) {
@@ -90,9 +87,7 @@ const Calender = () => {
 
   useEffect(() => {
     if (calendarData) {
-      // Trigger translation of dynamic content
       const timer = setTimeout(() => {
-        // Manually trigger Google Translate for dynamic content
         if (window.google && window.google.translate) {
           try {
             window.google.translate.getTranslateLib().then(() => {
@@ -118,7 +113,6 @@ const Calender = () => {
     navigate(path);
   }, [navigate]);
 
-  // Function to call Gemini API for calendar generation
   const generateCalendarWithGemini = async (crop, location) => {
     const prompt = `Generate a comprehensive farming calendar for ${crop} cultivation in ${location}. 
 
@@ -168,7 +162,6 @@ Include all major farming activities like land preparation, sowing, irrigation, 
 
       const data = await response.json();
       
-      // Try to parse JSON from Gemini response
       try {
         const calendarJson = JSON.parse(data.calendar);
         return calendarJson;
@@ -182,7 +175,6 @@ Include all major farming activities like land preparation, sowing, irrigation, 
     }
   };
 
-  // Fallback function to create calendar structure if JSON parsing fails
   const createFallbackCalendar = (crop, location, responseText) => {
     return {
       crop: crop.charAt(0).toUpperCase() + crop.slice(1),
@@ -204,7 +196,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
           ]
         }
       ],
-      aiResponse: responseText // Store the original AI response for reference
+      aiResponse: responseText 
     };
   };
 
@@ -213,7 +205,6 @@ Include all major farming activities like land preparation, sowing, irrigation, 
     setProgress(0);
     setError(null);
     
-    // Simulate progress for better UX
     const progressInterval = setInterval(() => {
       setProgress(prev => Math.min(prev + 10, 90));
     }, 200);
@@ -248,7 +239,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
   ];
 
   const locationOptions = [
-    { value: 'dadri', label: 'Dadri, Uttar Pradesh' },
+    { value: 'dadri', label: 'Uttar Pradesh' },
     { value: 'delhi', label: 'Delhi, NCR' },
     { value: 'punjab', label: 'Punjab' },
     { value: 'haryana', label: 'Haryana' },
@@ -279,7 +270,6 @@ Include all major farming activities like land preparation, sowing, irrigation, 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Input Form Section */}
           <DashboardCard 
             title={
               <TranslatableText translationKey="generate_calendar_title">
@@ -288,7 +278,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
             }
             className="mb-8"
           >
-            <div className="space-y-6">
+            <div className="space-y-6 mt-4">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <TranslatableText 
