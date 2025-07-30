@@ -56,7 +56,8 @@ const CustomTranslateDropdown = () => {
     const handleLanguageChange = (langCode) => {
     setSelectedLang(langCode);
     setIsOpen(false);
-    document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+    // document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/en/${langCode}; path=/; SameSite=None; Secure`;
     window.location.reload();
     };
 
