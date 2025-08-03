@@ -33,7 +33,6 @@ router.post('/government-schemes', async (req, res) => {
       "applicationDeadline": "Deadline or 'Open throughout the year'",
       "status": "active|deadline-approaching|closed",
       "documents": ["Document 1", "Document 2", "Document 3"],
-      "lastUpdated": "YYYY-MM-DD"
     }
   ]
 }
@@ -122,60 +121,10 @@ function getFallbackSchemes(category = '', state = '') {
     },
   ];
 
-  // Optionally include state-specific schemes
-  const stateSchemesMap = {
-    Punjab: [
-      {
-        id: 101,
-        name: 'Punjab Crop Diversification Scheme',
-        benefits: '₹17,500 per acre for crop diversification',
-        eligibility: 'Punjab farmers shifting from paddy',
-        applicationDeadline: 'Before Kharif season',
-        status: 'active',
-        authority: 'Punjab Department of Agriculture',
-        applicationType: 'offline',
-        documents: ['Land Records', 'Previous Crop Details', 'Bank Account'],
-        lastUpdated: '2025-01-22'
-      }
-    ],
-    Maharashtra: [
-      {
-        id: 102,
-        name: 'Jalyukt Shivar Abhiyan',
-        benefits: 'Infrastructure for water conservation',
-        eligibility: 'All farmers in Maharashtra',
-        applicationDeadline: 'Open throughout the year',
-        status: 'active',
-        authority: 'Maharashtra Water Conservation Department',
-        applicationType: 'offline',
-        documents: ['Land Records', 'Village Committee Approval'],
-        lastUpdated: '2025-01-19'
-      }
-    ],
-    'Uttar Pradesh': [
-      {
-        id: 103,
-        name: 'UP Kisan Karj Rahat Yojana',
-        benefits: 'Waiver of crop loans up to ₹1 lakh',
-        eligibility: 'Small and marginal farmers with land up to 2 hectares',
-        applicationDeadline: 'Registration ongoing',
-        status: 'active',
-        authority: 'UP Department of Agriculture',
-        applicationType: 'online',
-        documents: ['Aadhaar Card', 'Land Records', 'Loan Documents'],
-        lastUpdated: '2025-01-17'
-      }
-    ]
-  };
-
   let schemes = central;
   if (category) schemes = schemes.filter(s => s.category === category);
-  if (state && stateSchemesMap[state]) {
-    schemes = schemes.concat(stateSchemesMap[state].filter(s => !category || s.category === category));
-  }
 
   return { schemes: schemes.slice(0, 8) };
 }
 
 export default router;
-

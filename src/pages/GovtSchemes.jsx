@@ -4,15 +4,11 @@ import {
   Search,
   RefreshCw,
   Calendar,
-  Users,
   Info,
   ArrowLeft, 
   AlertCircle,
   CheckCircle,
   Clock,
-  IndianRupee,
-  MapPin,
-  ExternalLink
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -95,8 +91,8 @@ const GovernmentSchemes = () => {
   
   // Add state for translated option texts
   const [translatedOptionTexts, setTranslatedOptionTexts] = useState({
-    selectCategory: 'Select category…',
-    selectState: 'Select state…'
+    selectCategory: 'Select category',
+    selectState: 'Select state'
   });
 
   const { translateAndCache } = useTranslation();
@@ -260,21 +256,6 @@ const GovernmentSchemes = () => {
     }
   };
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'financial':
-        return <IndianRupee className="h-4 w-4 text-green-600" />;
-      case 'insurance':
-        return <FileText className="h-4 w-4 text-blue-600" />;
-      case 'credit':
-        return <Users className="h-4 w-4 text-purple-600" />;
-      case 'technical':
-        return <Info className="h-4 w-4 text-orange-600" />;
-      default:
-        return <FileText className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -316,7 +297,6 @@ const GovernmentSchemes = () => {
               >
                 Scheme Category
               </TranslatableText>
-              <div translate="no">
                 <select
                   value={selectedCategory}
                   onChange={(e) => {
@@ -335,7 +315,6 @@ const GovernmentSchemes = () => {
                     </option>
                   ))}
                 </select>
-              </div>
             </div>
 
             <div>
@@ -344,9 +323,8 @@ const GovernmentSchemes = () => {
                 tag="label" 
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                State
+                Select State
               </TranslatableText>
-              <div translate="no">
                 <select
                   value={selectedState}
                   onChange={(e) => {
@@ -365,12 +343,11 @@ const GovernmentSchemes = () => {
                     </option>
                   ))}
                 </select>
-              </div>
             </div>
 
             <div className="md:col-span-2 flex items-end">
-              <div translate="no" className="w-full md:w-auto">
-                <Button
+              <div className="w-full md:w-auto">
+                <Button translationKey="search_schemes_button"
                   onClick={() => { setHasFetched(true); fetchGovernmentSchemes(); }}
                   disabled={loading || (!selectedState && locationError)}
                   className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 disabled:bg-gray-400"
@@ -483,27 +460,6 @@ const GovernmentSchemes = () => {
                       </div>
                     </div>
                   )}
-
-                  {/* Footer */}
-                  <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                    <div className="text-xs text-gray-500">
-                      <div className="flex items-center mb-1">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span data-translate="dynamic">{scheme.lastUpdated}</span>
-                      </div>
-                    </div>
-                    {scheme.website && (
-                      <div translate="no">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(scheme.website, '_blank')}
-                          className="text-green-600 border-green-600 hover:bg-green-50"
-                        >
-                        </Button>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
             ))}

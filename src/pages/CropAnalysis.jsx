@@ -209,13 +209,13 @@ const CropAnalysis = () => {
             title="Upload or Capture Crop Image"
             className="mb-8"
           >
-            <div className="space-y-6">
+            <div className="space-y-6 mt-4">
               {selectedImage ? (
                 <div className="relative">
                   <img 
                     src={selectedImage} 
                     alt="Selected crop" 
-                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                    className="max-w-md mx-auto rounded-lg shadow-lg"
                   />
                   <Button 
                     variant="outline" 
@@ -278,7 +278,6 @@ const CropAnalysis = () => {
               {/* Analyze Button */}
               {selectedImage && !analysisResult && (
                 <div className="text-center">
-                  <div translate="no">
                     <Button 
                       onClick={analyzeImage}
                       disabled={isAnalyzing}
@@ -302,7 +301,6 @@ const CropAnalysis = () => {
                         </TranslatableText>
                       )}
                     </Button>
-                  </div>
                 </div>
               )}
             </div>
@@ -310,6 +308,7 @@ const CropAnalysis = () => {
 
           {/* Analysis Progress */}
           {isAnalyzing && (
+            <div className="mt-6">
             <DashboardCard className="mb-8">
               <div className="text-center p-8">
                 <div className="w-16 h-16 mx-auto mb-4" translate="no">
@@ -359,11 +358,12 @@ const CropAnalysis = () => {
                 </p>
               </div>
             </DashboardCard>
+            </div>
           )}
 
           {/* Analysis Results */}
           {analysisResult && (
-            <div className="space-y-6">
+            <div className="space-y-6 mt-6">
               <DashboardCard
                 title="Analysis Results"
                 subtitle={processingTime ? `Completed in ${(processingTime / 1000).toFixed(1)}s` : undefined}

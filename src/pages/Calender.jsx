@@ -120,7 +120,7 @@ Please provide the response in the following JSON format:
 {
   "crop": "${crop}",
   "location": "${location}",
-  "season": "appropriate season (e.g., Rabi 2025-26, Kharif 2025)",
+  "season": "appropriate season (e.g., Rabi, Kharif)",
   "activities": [
     {
       "month": "Month Year",
@@ -128,23 +128,18 @@ Please provide the response in the following JSON format:
         {
           "date": "Date range (e.g., Jan 1-15)",
           "activity": "Activity name",
-          "description": "Detailed description of the activity",
+          "description": "Description of the activity",
         }
       ]
     }
   ],
-  "weather": {
-    "temperature": "Expected temperature range",
-    "rainfall": "Expected rainfall",
-    "humidity": "Expected humidity range",
-    "sunshine": "Expected daily sunshine hours"
-  }
 }
 
-Include all major farming activities like land preparation, sowing, irrigation, fertilization, pest control, disease management, weeding, and harvesting. Consider the local climate and soil conditions of ${location}. Provide at least 6 months of detailed farming schedule.`;
+Include all major farming activities like land preparation, sowing, irrigation, fertilization, pest control, disease management, weeding, and harvesting. Consider the local climate and soil conditions of ${location}. Provide at least 6 months of farming schedule.`;
 
     try {
       const response = await fetch('https://smartkisan.onrender.com/api/generate', {
+      // const response = await fetch('http://localhost:5050/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -325,9 +320,9 @@ Include all major farming activities like land preparation, sowing, irrigation, 
                 </div>
               </div>
 
-              {/* Generate Button - Using a stable container with translate="no" but translatable content */}
+              {/* Generate Button */}
               <div className="text-center">
-                <div translate="no">
+                <div>
                   <Button 
                     onClick={generateCalendar}
                     disabled={isGenerating}
@@ -377,6 +372,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
 
           {/* Generation Progress - Protected container with translatable content */}
           {isGenerating && (
+            <div className="mt-4">
             <DashboardCard 
               title={
                 <TranslatableText translationKey="generating_calendar_title">
@@ -387,7 +383,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
             >
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4" translate="no">
-                  <div className="w-full h-full border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+                  <div className="w-full h-full mt-2 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
                 </div>
                 <TranslatableText 
                   translationKey="ai_creating_title"
@@ -433,6 +429,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
                 </p>
               </div>
             </DashboardCard>
+            </div>
           )}
 
           {/* Calendar Results - Protected container with translatable dynamic content */}
@@ -447,7 +444,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
                 }
                 className="border-l-4 border-l-green-500"
               >
-                <div className="grid md:grid-cols-4 gap-4 mb-4">
+                <div className="grid md:grid-cols-3 gap-4 mt-4">
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                       <span className="text-green-600 font-bold">🌾</span>
@@ -489,19 +486,6 @@ Include all major farming activities like land preparation, sowing, irrigation, 
                       <p className="font-semibold" data-translate="dynamic">{calendarData.season}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Thermometer className="w-5 h-5 text-red-500" />
-                    <div>
-                      <TranslatableText 
-                        translationKey="temperature_label"
-                        tag="p"
-                        className="text-sm text-gray-600"
-                      >
-                        Temperature
-                      </TranslatableText>
-                      <p className="font-semibold" data-translate="dynamic">{calendarData.weather?.temperature || 'N/A'}</p>
-                    </div>
-                  </div>
                 </div>
               </DashboardCard>
 
@@ -512,7 +496,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
                     key={monthIndex}
                     title={<span className="text-lg text-blue-700" data-translate="dynamic">{monthData.month}</span>}
                   >
-                    <div className="space-y-4">
+                    <div className="space-y-4 mt-4">
                       {monthData.tasks?.map((task, taskIndex) => (
                         <div key={taskIndex} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
                           <div className="flex-shrink-0">
@@ -533,7 +517,7 @@ Include all major farming activities like land preparation, sowing, irrigation, 
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <div translate="no">
+                <div>
                   <Button 
                     variant="outline" 
                     onClick={() => {

@@ -180,6 +180,7 @@ const MarketData = () => {
 
     try {
       const response = await fetch('https://smartkisan.onrender.com/api/market-data', {
+      // const response = await fetch('http://localhost:5050/api/market-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -251,7 +252,6 @@ const MarketData = () => {
               >
                 Select Crop
               </TranslatableText>
-              <div translate="no">
                 <select
                   value={selectedCrop}
                   onChange={(e) => {
@@ -270,7 +270,6 @@ const MarketData = () => {
                     </option>
                   ))}
                 </select>
-              </div>
             </div>
 
             <div>
@@ -281,7 +280,6 @@ const MarketData = () => {
               >
                 Search Radius
               </TranslatableText>
-              <div translate="no">
                 <select
                   value={searchRadius}
                   onChange={(e) => {
@@ -298,11 +296,10 @@ const MarketData = () => {
                     <option key={r} value={r}>{r} km</option>
                   ))}
                 </select>
-              </div>
             </div>
 
             <div className="md:col-span-2 flex items-end">
-              <div translate="no" className="w-full md:w-auto">
+              <div className="w-full md:w-auto">
                 <Button
                   onClick={() => { setHasFetched(true); fetchMarketData(); }}
                   disabled={loading || !location || !selectedCrop || !searchRadius}

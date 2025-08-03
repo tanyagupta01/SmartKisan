@@ -13,47 +13,29 @@ router.post('/generate', async (req, res) => {
   }
 
   try {
-    // Enhanced prompt for better calendar generation
     const enhancedPrompt = `
-You are an expert agricultural advisor. Generate a comprehensive farming calendar for ${crop} cultivation in ${location}, India.
-
-Please provide the response in the following JSON format only (no additional text):
-{
-  "crop": "${crop}",
-  "location": "${location}",
-  "season": "appropriate season with year (e.g., Rabi, Kharif)",
-  "activities": [
+    You are an expert agricultural advisor. Generate a farming calendar for ${crop} in ${location}, India in JSON format only (no additional text):
     {
-      "month": "Month Year",
-      "tasks": [
+      "crop": "${crop}",
+      "location": "${location}",
+      "season": "season name",
+      "activities": [
         {
-          "date": "Date range (e.g., Jan 1-15)",
-          "activity": "Activity name",
-          "description": "Detailed description of the activity",
-          "priority": "high/medium/low"
+          "month": "Month Year",
+          "tasks": [
+            {"date": "Date range", "activity": "Activity", "description": "description of the activity"}
+          ]
         }
       ]
     }
-  ],
-  "weather": {
-    "temperature": "Expected temperature range in Celsius",
-    "rainfall": "Expected rainfall in mm",
-    "humidity": "Expected humidity percentage range",
-    "sunshine": "Expected daily sunshine hours"
-  }
-}
 
-Requirements:
-1. Include ALL major farming activities: land preparation, seed treatment, sowing, irrigation, fertilization, pest control, disease management, weeding, pruning (if applicable), and harvesting
-2. Consider the specific climate and soil conditions of ${location}
-3. Provide at least 5-8 months of detailed farming schedule
-4. Include specific dates and timings based on local agricultural practices
-5. Assign appropriate priority levels (high/medium/low) to each task
-6. Consider the current date and plan accordingly for the upcoming growing season
-7. Include weather expectations specific to the region and crop growing period
-8. Provide practical, actionable advice for each farming activity
+    Requirements:
+    1. Include ALL major farming activities: land preparation, seed treatment, sowing, irrigation, fertilization, pest control, disease management, weeding, pruning (if applicable), and harvesting
+    2. Consider the specific climate and soil conditions of ${location}
+    3. Provide at least 5-8 months of farming schedule
+    4. Provide practical, actionable advice for each farming activity
 
-Make sure the calendar is specific to ${location} climate and ${crop} growing requirements.`;
+    Include 6 months: land prep, sowing, irrigation, fertilization, pest control, harvesting. Keep descriptions under 20 words.`;
 
     // Call Gemini AI
     const textResp = await ai.models.generateContent({
@@ -65,8 +47,10 @@ Make sure the calendar is specific to ${location} climate and ${crop} growing re
         }
       ],
       generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 4096,
+        temperature: 0.3,        // Reduced from 0.7
+        maxOutputTokens: 4096,   // Reduced from 4096
+        topP: 0.8,              // Add this
+        topK: 40,               // Add this
       }
     });
 

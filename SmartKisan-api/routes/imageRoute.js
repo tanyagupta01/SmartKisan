@@ -18,7 +18,7 @@ router.post('/analyze-image', async (req, res) => {
 
     const prompt = `You are an expert plant pathologist.
       Detect any disease signs on this crop image, name the disease,
-      give severity, a brief description and treatment steps(maximum 4)
+      a brief description and treatment steps(maximum 4)
       in JSON:
       {
         "crop": string,
